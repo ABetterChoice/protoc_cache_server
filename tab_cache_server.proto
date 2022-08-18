@@ -1,0 +1,235 @@
+syntax = "proto3";
+package opensource.tab.cache_server;
+// 注意：这里go_package指定的是协议生戨git上的地址，不要和上面的服务的git仓库地址一样
+option go_package="git.code.oa.com/tencent_abtest/protocol/protoc_cache_server";
+
+// 定义服务接口
+service APIServer {
+  rpc GetTabConfig (GetTabConfigReq) returns (GetTabConfigResp); // 获取持续实验相关信息：实验以及远程配置[单个app维度]
+  // rpc ListTabConfig (ListTabConfigReq) returns (ListTabConfigResp); // // 获取持续实验相关信息：实验以及远程配置[多个app维度]
+  // rpc BatchGetExpBucket (BatchGetExpBucketsReq) returns (BatchGetExpBucketsResp);  // 批量获取实验的hash桶信息
+}
+
+// 来源类型
+enum OriginType {
+  ORIGIN_UNKNOWN = 0; // 未知
+  SERVER = 1; // 服务
+  MOBILE = 2; // 终端
+}
+
+// 更新方式
+enum UpdateType {
+  UPDATE_TYPE_UNKNOWN = 0; // 未知
+  COMPLETE = 1; // 全量
+  DIFF = 2; // 增量补丁
+}
+
+// 获取远程缓存服务配置信息
+message GetTabConfigReq {
+  string business_code = 1; // 业务唯一标识
+  string version = 2; // 本地配置信息版本，用于补丁下发，version 为空拉取全量
+  OriginType origin_type = 3; // 根据请求来源，返回差异化的配置信息
+  UpdateType update_type = 4; // 更新方式
+}
+
+enum Code {
+  CODE_SUCCESS = 0;                          // 正常返回
+  CODE_NO_PERMISSION = 1001;                 // 无权限
+  CODE_TRAFFIC_LIMIT = 1002;                 // 限流返回
+  CODE_INVALID_BUSINESS = 1003;         // 入参 business code 出错
+  CODE_SERVER_ERR = 1004;                    // 服务器处理异常
+  CODE_INVALID_PARAM = 1005;                 // 非法参数
+  CODE_SAME_VERSION = 2001;                  // 版本未更新
+}
+
+// 获取缓存数据结果
+message GetTabConfigResp {
+  Code code = 1; // 错误码
+  string message = 2; // 详细信息描述
+
+  TabConfigManager tab_config_manager = 10; // 缓存数据
+}
+
+//白名单列表中 - 每一层映射的实验ID
+message LayerToGroupID{
+  // key=layer_key，value= group ID
+  map<string,int64> layer_to_group_id = 1;
+}
+
+// 实验层域结构
+message Domain {
+  DomainMetadata metadata = 1; // 元数据
+  repeated HoldoutDomain holdout_domain_list = 10; // 贯穿域列表
+  repeated MultiLayerDomain multi_layer_domain_list = 11; // 多层域列表
+  repeated Domain domain_list = 12; // 嵌套的子域结构
+}
+
+// 实验层
+message Layer {
+  LayerMetadata metadata = 1;
+  repeated Group group_list = 10; // 层下的实验组列表
+  map<int64, string> experiment_index = 11; // 层下实验列表索引,key为实验ID，value为实验code
+  map<int64, GroupIDList> experiment_group_index = 12; // 索引 experiment 下的 group
+}
+
+message GroupIDList {
+  repeated int64 groupIDList = 1;
+}
+
+// 层元数据
+message LayerMetadata {
+  int64 id = 1;
+  string key = 2;
+  Group default_group = 3; // 层默认实验组
+  HashType hash_type = 4; // hash 类型
+  HashMethod hash_method = 5; // hash 方法
+  int64 bucket_nums = 6; // 层使用的分桶粒度，100/1000/10000/100000
+}
+
+// hash 方法
+enum HashMethod {
+  HASH_METHOD_UNKNOWN = 0;
+  HASH_METHOD_BKDR = 1; // bkdr hash
+  HASH_METHOD_MURMUR3 = 2; // murmur3
+  HASH_METHOD_DJB = 3; // djb
+  HASH_METHOD_NEW = 4; // new
+  HASH_METHOD_NEW_MD5 = 5; // new md5
+  HASH_METHOD_AP = 6; // ap
+}
+
+enum HashType {
+  HASH_TYPE_UNKNOWN = 0;
+  HASH_TYPE_SINGLE = 1; // 单次 hash，进入层后做一次hash，直接判定命中的 group
+  HASH_TYPE_DOUBLE = 2; // 双 hash，进入层后做一次 hash，判定命中的实验，实验内再做一次 hash，判定命中的 group
+}
+
+// holdout 域信息
+message HoldoutDomain {
+  DomainMetadata metadata = 1;
+  repeated Layer layer_list = 10; // holdout 域下的层，理论上只有一个，sdk 协议支持多个
+}
+
+// 多层域
+message MultiLayerDomain {
+  DomainMetadata metadata = 1;
+  repeated Layer layer_list = 10; // 多层域下的层列表
+}
+
+// 实验下的实验组信息【对照组 or 实验组】
+message Group {
+  int64 id = 1; // 实验组 ID
+  string group_key = 2; // 实验组 key
+  int64 experiment_id = 3; // 所属实验 ID
+  string experiment_key = 4; // 所属实验 key
+  map<string, string> params = 5; // group 参数
+  bool is_default = 6; // 是否是默认实验
+  bool is_control = 7; // 是否是对照组
+  string layer_key = 8; // 冗余字段，存放所属层 key
+  IssueInfo issue_info = 9; // 下发信息 TODO 更贴切的命名
+}
+
+// 实验下发信息
+message IssueInfo {
+  IssueType issue_type = 1; // 下发类型
+  repeated tagList tagListGroup = 2; // 或关系
+}
+
+message tagList {
+  repeated tag tag_list = 2; // 与关系
+}
+
+// 标签
+message tag {
+  string key = 1; // 标签 key，用户传入的标签 kv 中的 key，由此拿到用户标签值，跟当前配置标签值做对比
+  TagType tag_type = 2; // 字符串\数值\array\bool 等
+  int64 operator = 3; // 操作符 lte\gte etc
+  string value = 4; // 标签值
+}
+
+// 操作符
+enum Operator {
+  OPERATOR_UNKNOWN = 0;
+  OPERATOR_EG = 1; // 相等
+  OPERATOR_LT = 2; // 小于
+  OPERATOR_LTE = 3; // 小于等于
+  OPERATOR_GT = 4; // 大于
+  OPERATOR_GTE = 5; // 大于等于
+  OPERATOR_NE = 6; // 不等于
+  OPERATOR_REGULAR = 7; // 正则
+  OPERATOR_IN = 8; // 存在数组内
+  OPERATOR_NOT_IN = 9; // 不存在数组内
+  OPERATOR_SUPER_SET = 10; // 超集
+  OPERATOR_SUB_SET = 11; // 子集
+  OPERATOR_TRUE = 12; // true bool，也可以是人群包命中
+  OPERATOR_FALSE = 13; // false bool，也可以是人群包不命中，取非
+}
+
+enum TagType {
+  TAG_TYPE_UNKNOWN = 0;
+  TAG_TYPE_STRING = 1; // 字符串类型
+  TAG_TYPE_NUMBER = 2; // 数值类型
+  TAG_TYPE_ARRAY = 3; // array 类型
+  TAG_TYPE_BOOLEAN = 4; // bool 类型
+  TAG_TYPE_DMP = 5; // 人群包类型，需要 rpc 请求用户画像信息
+  TAG_TYPE_VERSION = 6; // 版本号信息
+}
+
+// 下发类型
+enum IssueType {
+  ISSUE_TYPE_UNKNOWN = 0;
+  ISSUE_TYPE_PERCENTAGE = 1; // 按比例下发
+  ISSUE_TYPE_TAG = 2; // 按标签下发
+}
+
+// 域类型
+enum DomainType {
+  DOMAIN_TYPE_UNKNOWN = 0;
+  DOMAIN_TYPE_DOMAIN = 1; // 层域
+  DOMAIN_TYPE_HOLDOUT = 2; // holdout 贯穿域，整体空白对照
+  DOMAIN_TYPE_MULTILAYER = 3; // 多层域，层与层正交，流量复用
+}
+
+// 域元数据
+message DomainMetadata {
+  int64 id = 1; // ID
+  string key = 2; // key
+  DomainType domain_type = 3; // 域类型
+  repeated TrafficRange traffic_range_list = 10; // TODO 有必要多个吗，先保留
+}
+
+// 流量区间 范围 hashValue 在 (0, 10000] 区间内，命中 [left,right] 闭区间就算命中
+message TrafficRange {
+  int64 left = 1;
+  int64 right = 2;
+}
+
+// 实验缓存数据
+message ExperimentData {
+  int64  default_group_id = 1; // 实验不命中默认的ID
+  map<string, LayerToGroupID> whitelist = 2; // 白名单 key=guid value=<layer code, group id> 白名单信息
+  Domain root = 3; // 实验层域结构
+}
+
+// 配置缓存数据
+message ConfigData {}
+
+// 系统控制信息缓存数据，business 下全局配置
+message ControlData {}
+
+// 全量缓存数据
+message TabConfig {
+  ExperimentData experiment_data = 1;
+  ConfigData config_data = 2;
+  ControlData control_data = 3;
+}
+
+// 缓存数据
+message TabConfigManager {
+  string business_code = 1; // 业务唯一标识
+  string version = 2; // 本地配置信息版本，用于补丁下发，version 为空拉取全量
+  OriginType origin_type = 3; // 根据请求来源，返回差异化的配置信息
+  UpdateType update_type = 4; // 更新方式
+
+  TabConfig tab_config = 10; // 全量缓存数据
+  bytes tab_config_patch = 11; // 增量更新模式下，新老版本的补丁包
+}
