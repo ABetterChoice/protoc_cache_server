@@ -194,6 +194,8 @@ message DomainMetadata {
   int64 id = 1; // ID
   string key = 2; // key
   DomainType domain_type = 3; // 域类型
+  HashType hash_type = 4; // hash 类型
+  HashMethod hash_method = 5; // hash 方法
   repeated TrafficRange traffic_range_list = 10; // TODO 有必要多个吗，先保留
 }
 
