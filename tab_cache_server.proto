@@ -12,16 +12,16 @@ service APIServer {
 
 // 来源类型
 enum OriginType {
-  ORIGIN_UNKNOWN = 0; // 未知
-  SERVER = 1; // 服务
-  MOBILE = 2; // 终端
+  ORIGIN_TYPE_UNKNOWN = 0; // 未知
+  ORIGIN_TYPE_SERVER = 1; // 服务
+  ORIGIN_TYPE_MOBILE = 2; // 终端
 }
 
 // 更新方式
 enum UpdateType {
   UPDATE_TYPE_UNKNOWN = 0; // 未知
-  COMPLETE = 1; // 全量
-  DIFF = 2; // 增量补丁
+  UPDATE_TYPE_COMPLETE = 1; // 全量
+  UPDATE_YPE_DIFF = 2; // 增量补丁
 }
 
 // 获取远程缓存服务配置信息
