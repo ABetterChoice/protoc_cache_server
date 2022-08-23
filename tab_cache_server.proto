@@ -7,7 +7,7 @@ option go_package="git.code.oa.com/tencent_abtest/protocol/protoc_cache_server";
 service APIServer {
   rpc GetTabConfig (GetTabConfigReq) returns (GetTabConfigResp); // 获取持续实验相关信息：实验以及远程配置[单个app维度]
   // rpc ListTabConfig (ListTabConfigReq) returns (ListTabConfigResp); // // 获取持续实验相关信息：实验以及远程配置[多个app维度]
-  // rpc BatchGetExpBucket (BatchGetExpBucketsReq) returns (BatchGetExpBucketsResp);  // 批量获取实验的hash桶信息
+//   rpc BatchGetExpBucket (BatchGetExpBucketsReq) returns (BatchGetExpBucketsResp);  // 批量获取实验的hash桶信息
 }
 
 // 来源类型
@@ -56,10 +56,10 @@ message LayerToGroupID{
   map<string,int64> layer_to_group_id = 1;
 }
 
-// 实验层域结构
+// 实验层域结构 // TODO 层域结构概念透出、封装、降门槛
 message Domain {
   DomainMetadata metadata = 1; // 元数据
-  repeated HoldoutDomain holdout_domain_list = 10; // 贯穿域列表
+  repeated HoldoutDomain holdout_domain_list = 10; // 贯穿域列表 // TODO 本质是想部分人群走一个层就完事 命名
   repeated MultiLayerDomain multi_layer_domain_list = 11; // 多层域列表
   repeated Domain domain_list = 12; // 嵌套的子域结构
 }
@@ -68,12 +68,15 @@ message Domain {
 message Layer {
   LayerMetadata metadata = 1;
   repeated Group group_list = 10; // 层下的实验组列表
-  map<int64, string> experiment_index = 11; // 层下实验列表索引,key为实验ID，value为实验code
-  map<int64, GroupIDList> experiment_group_index = 12; // 索引 experiment 下的 group
+  map<int64, Experiment> experiment_index = 11; // 层下实验列表索引,key为实验ID，value为实验
 }
 
-message GroupIDList {
-  repeated int64 groupIDList = 1;
+// 实验信息
+message Experiment {
+  HashMethod hash_method = 1; // hash 方法
+  int64 hash_seed = 2; // 二次 hash 所用种子
+  IssueType issue_type = 10; // 下发类型
+  map<int64, Group> group_index = 11; // 实验下的实验组索引
 }
 
 // hash 方法
@@ -115,13 +118,13 @@ message Group {
   bool is_default = 6; // 是否是默认实验
   bool is_control = 7; // 是否是对照组
   string layer_key = 8; // 冗余字段，存放所属层 key
-  IssueInfo issue_info = 9; // 下发信息 TODO 更贴切的命名
+  IssueInfo issue_info = 9; // 下发信息
 }
 
 // 实验下发信息
 message IssueInfo {
   IssueType issue_type = 1; // 下发类型
-  repeated tagList tagListGroup = 2; // tagList 之间或关系，tagList 里面 与关系 表达式  (A && B && C ...) || (a && b && c ...) || ...
+  repeated tagList tag_list_group = 2; // tagList 之间或关系，tagList 里面 与关系 表达式  (A && B && C ...) || (a && b && c ...) || ...
 }
 
 message tagList {
@@ -170,6 +173,7 @@ enum IssueType {
   ISSUE_TYPE_UNKNOWN = 0;
   ISSUE_TYPE_PERCENTAGE = 1; // 按比例下发
   ISSUE_TYPE_TAG = 2; // 按标签下发
+  ISSUE_TYPE_CITY_TAG = 3; // 按城市标签下发【每个实验组的标签都不一样】两个及以上实验组拥有相同标签：AaBb，建议同层设置两个互斥实验
 }
 
 // 域类型
@@ -189,27 +193,25 @@ enum UnitIDType {
 
 // 域元数据
 message DomainMetadata {
-  int64 id = 1; // ID
-  string key = 2; // key
-  DomainType domain_type = 3; // 域类型
-  HashType hash_type = 4; // hash 类型
-  HashMethod hash_method = 5; // hash 方法
-  int64 hash_seed = 6; // hash 种子
-  UnitIDType unit_id_type = 7; // 分流使用的 ID 类型，用于分流ID（一般是账号体系）灰度切换使用
-  repeated TrafficRange traffic_range_list = 10; // TODO 有必要多个吗，先保留
+  string key = 1; // key
+  DomainType domain_type = 2; // 域类型
+  HashMethod hash_method = 3; // hash 方法
+  int64 hash_seed = 4; // hash 种子 选大质数
+  // UnitIDType decisionID 专门用于分流 + reportID N decisionID -> 1 unitID TODO
+  UnitIDType unit_id_type = 5; // 分流使用的 ID 类型，用于分流ID（一般是账号体系）灰度切换使用 TODO
+  repeated TrafficRange traffic_range_list = 10; // 流量区间
 }
 
 // 层元数据
 message LayerMetadata {
-  int64 id = 1;
-  string key = 2;
-  Group default_group = 3; // 层默认实验组
-  HashType hash_type = 4; // hash 类型
-  HashMethod hash_method = 5; // hash 方法
-  int64 hash_seed = 6; // hash 种子
-  repeated int64 scene_id_list = 7; // 场景列表，相当于染色，逻辑隔离
-  UnitIDType unit_id_type = 8; // 分流使用的 ID 类型，用于分流ID（一般是账号体系）灰度切换使用
-  int64 bucket_nums = 10; // 层使用的分桶粒度，100/1000/10000/100000
+  string key = 1;
+  Group default_group = 2; // 层默认实验组
+  HashType hash_type = 3; // hash 类型
+  HashMethod hash_method = 4; // hash 方法
+  int64 hash_seed = 5; // hash 种子
+  repeated int64 scene_id_list = 6; // 场景列表，相当于染色，逻辑隔离
+  UnitIDType unit_id_type = 7; // 分流使用的 ID 类型，用于分流ID（一般是账号体系）灰度切换使用
+  int64 bucket_nums = 10; // 层桶数，100/1000/10000/100000
 }
 
 // 流量区间 范围 hashValue 在 (0, 10000] 区间内，命中 [left,right] 闭区间就算命中
@@ -220,9 +222,9 @@ message TrafficRange {
 
 // 实验缓存数据
 message ExperimentData {
-  int64  default_group_id = 1; // 实验不命中默认的ID
-  map<string, LayerToGroupID> whitelist = 2; // 白名单 key=guid value=<layer code, group id> 白名单信息
-  Domain globalDomain = 3; // 实验层域结构
+  int64  default_group_id = 1; // 实验不命中默认的ID eg -1，既不命中实验也不命中层默认实验等，统一返回改 group ID
+  map<string, LayerToGroupID> override_list = 2; // 白名单 key=unitID value=<layer code, group id> 白名单信息
+  Domain global_domain = 3; // 实验层域结构
 }
 
 // 配置缓存数据
@@ -234,8 +236,8 @@ message ControlData {}
 // 全量缓存数据
 message TabConfig {
   ExperimentData experiment_data = 1;
-  ConfigData config_data = 2;
-  ControlData control_data = 3;
+  ConfigData config_data = 2; // 配置信息，开关相关也是基于配置，底层逻辑一致
+  ControlData control_data = 3; // business 下的全局配置信息
 }
 
 // 缓存数据
