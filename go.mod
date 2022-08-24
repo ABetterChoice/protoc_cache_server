@@ -1,4 +1,4 @@
-module git.code.oa.com/tencent_abtest/open-source/protoc-tab-cache-server
+module git.code.oa.com/tencent_abtest/protocol/protoc_cache_server
 
 go 1.17
 
