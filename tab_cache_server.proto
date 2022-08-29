@@ -156,6 +156,10 @@ enum Operator {
   OPERATOR_SUB_SET = 11; // 子集
   OPERATOR_TRUE = 12; // true bool，也可以是人群包命中
   OPERATOR_FALSE = 13; // false bool，也可以是人群包不命中，取非
+  OPERATOR_LORO = 14; // 左开右开 虽然可以通过 Left < X && X < Right 组合表达，但基于这是个常见表达式，故特别提供区间计算
+  OPERATOR_LORC = 15; // 左开右闭
+  OPERATOR_LCRO = 16; // 左闭右开
+  OPERATOR_LCRC = 17; // 左闭右闭
 }
 
 enum TagType {

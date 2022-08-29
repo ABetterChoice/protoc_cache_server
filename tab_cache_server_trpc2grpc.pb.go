@@ -4,11 +4,10 @@
 // - protoc             v3.14.0
 // source: tab_cache_server.proto
 
-package protoc_tab_cache_server
+package protoc_cache_server
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
