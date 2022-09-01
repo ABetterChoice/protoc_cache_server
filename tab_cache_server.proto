@@ -160,16 +160,19 @@ enum Operator {
   OPERATOR_LORC = 15; // 左开右闭
   OPERATOR_LCRO = 16; // 左闭右开
   OPERATOR_LCRC = 17; // 左闭右闭
+  OPERATOR_EMPTY = 18; // 空，用户传入的标签值为空
+  OPERATOR_NOT_EMPTY = 19; // 非空，用户传入的标签值非空
 }
 
 enum TagType {
   TAG_TYPE_UNKNOWN = 0;
   TAG_TYPE_STRING = 1; // 字符串类型
   TAG_TYPE_NUMBER = 2; // 数值类型
-  TAG_TYPE_ARRAY = 3; // array 类型
+  TAG_TYPE_SET = 3; // 集合类型，超集\子集\等于
   TAG_TYPE_BOOLEAN = 4; // bool 类型
   TAG_TYPE_DMP = 5; // 人群包类型，需要 rpc 请求用户画像信息
   TAG_TYPE_VERSION = 6; // 版本号信息
+  TAG_TYPE_EMPTY = 7; // 空判断，用户传入的标签值为空与否
 }
 
 // 下发类型

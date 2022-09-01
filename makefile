@@ -4,6 +4,7 @@ all: .build
 
 .build: .format
 	go mod tidy
+	protoc --proto_path=$GOPATH/src:${GOPATH}/src/git.code.oa.com/trpcprotocol:. --trpc2grpc_out=require_unimplemented_servers=false:. --go_out=. tab_cache_server.proto
 
 .format:
 	go mod tidy
