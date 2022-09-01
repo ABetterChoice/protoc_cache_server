@@ -147,7 +147,7 @@ message tag {
 // 操作符
 enum Operator {
   OPERATOR_UNKNOWN = 0;
-  OPERATOR_EG = 1; // 相等
+  OPERATOR_EQ = 1; // 相等
   OPERATOR_LT = 2; // 小于
   OPERATOR_LTE = 3; // 小于等于
   OPERATOR_GT = 4; // 大于
