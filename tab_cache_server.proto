@@ -30,8 +30,8 @@ enum UpdateType {
 message GetTabConfigReq {
   string business_code = 1; // 业务唯一标识
   string version = 2; // 本地配置信息版本，用于补丁下发，version 为空拉取全量
-//  OriginType origin_type = 3; // 根据请求来源，返回差异化的配置信息
   UpdateType update_type = 4; // 更新方式
+  string sdk_version = 5; // sdk 版本信息 例如 GO_1.6.0
 }
 
 enum Code {
@@ -279,7 +279,8 @@ message BucketInfo {
 // 批量获取实验桶信息
 message BatchGetExperimentBucketReq {
   string business_code = 1; // 业务唯一标识
-  map<int64, string> bucket_version_index = 2; // 实验 id 与版本索引，key 为实验 ID
+  string sdk_version = 2; // sdk 版本信息
+  map<int64, string> bucket_version_index = 3; // 实验 id 与版本索引，key 为实验 ID
 }
 
 // 批量获取实验桶信息
@@ -292,7 +293,8 @@ message BatchGetExperimentBucketResp {
 // 批量获取实验组桶信息
 message BatchGetGroupBucketReq {
   string business_code = 1; // 业务唯一标识
-  map<int64, string> bucket_version_index = 2; // 实验组 id 与版本索引，key 为实验组 ID
+  string sdk_version = 2; // sdk 版本信息
+  map<int64, string> bucket_version_index = 3; // 实验组 id 与版本索引，key 为实验组 ID
 }
 
 // 批量获取实验组桶信息
