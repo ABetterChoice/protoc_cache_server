@@ -139,7 +139,7 @@ message tagList {
 message tag {
   string key = 1; // 标签 key，用户传入的标签 kv 中的 key，由此拿到用户标签值，跟当前配置标签值做对比
   TagType tag_type = 2; // 字符串\数值\array\bool 等
-  int64 operator = 3; // 操作符 lte\gte etc
+  Operator operator = 3; // 操作符 lte\gte etc
   string value = 4; // 标签值，人群包类型标识人群包 key
   int64 dmp_platform = 5; // 人群包判定系统 TODO 枚举
 }
