@@ -223,6 +223,7 @@ message LayerMetadata {
   int64 hash_seed = 5; // hash 种子
   repeated int64 scene_id_list = 6; // 场景列表，相当于染色，逻辑隔离
   UnitIDType unit_id_type = 7; // 分流使用的 ID 类型，用于分流ID（一般是账号体系）灰度切换使用
+  repeated TrafficRange traffic_range_list = 8; // 流量区间，一般等同于层所在域，sdk 支持控制层粒度的流量，范围(0,所在域的 bucket_size]
   int64 bucket_size = 10; // 层桶数，100/1000/10000/100000
 }
 
