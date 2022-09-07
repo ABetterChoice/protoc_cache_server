@@ -79,6 +79,7 @@ message Experiment {
   int64 hash_seed = 2; // 二次 hash 所用种子
   int64 id = 3; // 实验 ID
   string key = 4; // 实验 key
+  int64 bucket_size = 5; // 实验桶数，100/1000/10000/100000
   IssueType issue_type = 10; // 下发类型
   map<int64, Group> group_index = 11; // 实验下的实验组索引
 }
