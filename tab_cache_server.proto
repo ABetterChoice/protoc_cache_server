@@ -143,6 +143,7 @@ message tag {
   Operator operator = 3; // 操作符 lte\gte etc
   string value = 4; // 标签值，人群包类型标识人群包 key
   int64 dmp_platform = 5; // 人群包判定系统 TODO 枚举
+  UnitIDType unit_id_type = 6; // unit id 类型
 }
 
 // 操作符
