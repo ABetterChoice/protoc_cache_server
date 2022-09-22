@@ -1918,6 +1918,16 @@ type ControlData struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+
+	RefreshInterval                  uint32                   `protobuf:"varint,1,opt,name=refresh_interval,json=refreshInterval,proto3" json:"refresh_interval,omitempty"`                                                                                                                           // 更新间隔，可控制异步刷新本地缓存的间隔
+	IgnoreReportGroupId              map[int64]bool           `protobuf:"bytes,2,rep,name=ignore_report_group_id,json=ignoreReportGroupId,proto3" json:"ignore_report_group_id,omitempty" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`                  // 不进行曝光上报的实验名单，value 为 true 才会生效
+	ExperimentMetricsConfig          map[int64]*MetricsConfig `protobuf:"bytes,3,rep,name=experiment_metrics_config,json=experimentMetricsConfig,proto3" json:"experiment_metrics_config,omitempty" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`         // 实验监控上报相关配置，key 为场景 ID
+	DefaultExperimentMetricsConfig   *MetricsConfig           `protobuf:"bytes,4,opt,name=default_experiment_metrics_config,json=defaultExperimentMetricsConfig,proto3" json:"default_experiment_metrics_config,omitempty"`                                                                           // 默认监控上报相关配置
+	RemoteConfigMetricsConfig        map[int64]*MetricsConfig `protobuf:"bytes,5,rep,name=remote_config_metrics_config,json=remoteConfigMetricsConfig,proto3" json:"remote_config_metrics_config,omitempty" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"` // 远程配置监控上报相关配置，key 为场景 ID
+	DefaultRemoteConfigMetricsConfig *MetricsConfig           `protobuf:"bytes,6,opt,name=default_remote_config_metrics_config,json=defaultRemoteConfigMetricsConfig,proto3" json:"default_remote_config_metrics_config,omitempty"`                                                                   // 远程配置监控上报相关配置
+	FeatureFlagMetricsConfig         map[int64]*MetricsConfig `protobuf:"bytes,7,rep,name=feature_flag_metrics_config,json=featureFlagMetricsConfig,proto3" json:"feature_flag_metrics_config,omitempty" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`    // 开关监控上报相关配置
+	DefaultFeatureFlagMetricsConfig  *MetricsConfig           `protobuf:"bytes,8,opt,name=default_feature_flag_metrics_config,json=defaultFeatureFlagMetricsConfig,proto3" json:"default_feature_flag_metrics_config,omitempty"`                                                                      // 默认开关监控上报相关配置
+	EventMetricsConfig               *MetricsConfig           `protobuf:"bytes,9,opt,name=event_metrics_config,json=eventMetricsConfig,proto3" json:"event_metrics_config,omitempty"`                                                                                                                 // 事件监控上报相关配置
 }
 
 func (x *ControlData) Reset() {
@@ -1952,6 +1962,229 @@ func (*ControlData) Descriptor() ([]byte, []int) {
 	return file_tab_cache_server_proto_rawDescGZIP(), []int{17}
 }
 
+func (x *ControlData) GetRefreshInterval() uint32 {
+	if x != nil {
+		return x.RefreshInterval
+	}
+	return 0
+}
+
+func (x *ControlData) GetIgnoreReportGroupId() map[int64]bool {
+	if x != nil {
+		return x.IgnoreReportGroupId
+	}
+	return nil
+}
+
+func (x *ControlData) GetExperimentMetricsConfig() map[int64]*MetricsConfig {
+	if x != nil {
+		return x.ExperimentMetricsConfig
+	}
+	return nil
+}
+
+func (x *ControlData) GetDefaultExperimentMetricsConfig() *MetricsConfig {
+	if x != nil {
+		return x.DefaultExperimentMetricsConfig
+	}
+	return nil
+}
+
+func (x *ControlData) GetRemoteConfigMetricsConfig() map[int64]*MetricsConfig {
+	if x != nil {
+		return x.RemoteConfigMetricsConfig
+	}
+	return nil
+}
+
+func (x *ControlData) GetDefaultRemoteConfigMetricsConfig() *MetricsConfig {
+	if x != nil {
+		return x.DefaultRemoteConfigMetricsConfig
+	}
+	return nil
+}
+
+func (x *ControlData) GetFeatureFlagMetricsConfig() map[int64]*MetricsConfig {
+	if x != nil {
+		return x.FeatureFlagMetricsConfig
+	}
+	return nil
+}
+
+func (x *ControlData) GetDefaultFeatureFlagMetricsConfig() *MetricsConfig {
+	if x != nil {
+		return x.DefaultFeatureFlagMetricsConfig
+	}
+	return nil
+}
+
+func (x *ControlData) GetEventMetricsConfig() *MetricsConfig {
+	if x != nil {
+		return x.EventMetricsConfig
+	}
+	return nil
+}
+
+// 指标监控上报配置信息
+type MetricsConfig struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	IsAutomatic         bool             `protobuf:"varint,1,opt,name=is_automatic,json=isAutomatic,proto3" json:"is_automatic,omitempty"`                           // 是否自动记录曝光，如果 sdk 没有注册任何上报组件插件，则不会上报
+	IsEnable            bool             `protobuf:"varint,2,opt,name=is_enable,json=isEnable,proto3" json:"is_enable,omitempty"`                                    // 是否启用，默认为 true，如果 false，则不需要上报
+	PluginName          string           `protobuf:"bytes,3,opt,name=plugin_name,json=pluginName,proto3" json:"plugin_name,omitempty"`                               // 监控上报组件插件名, 例如 atta、kafka、tabServer
+	SceneId             int64            `protobuf:"varint,4,opt,name=scene_id,json=sceneId,proto3" json:"scene_id,omitempty"`                                       // 场景 ID
+	SamplingInterval    uint32           `protobuf:"varint,5,opt,name=sampling_interval,json=samplingInterval,proto3" json:"sampling_interval,omitempty"`            // 上报采样间隔，如果是 3，说明只采样 1/3 的事件，如果是 1，则全量上报
+	ErrSamplingInterval uint32           `protobuf:"varint,6,opt,name=err_sampling_interval,json=errSamplingInterval,proto3" json:"err_sampling_interval,omitempty"` // 发生错误的情况下 上报采样间隔，如果是 3，说明只采样 1/3 的事件，如果是 1，则全量上报，一般来说错误情况，上报间隔会比正常情况下的上报间隔小
+	Metadata            *MetricsMetadata `protobuf:"bytes,10,opt,name=metadata,proto3" json:"metadata,omitempty"`                                                    // 插件的通用元数据，上报时，会将这部分信息透传给具体的插件
+}
+
+func (x *MetricsConfig) Reset() {
+	*x = MetricsConfig{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_tab_cache_server_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MetricsConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MetricsConfig) ProtoMessage() {}
+
+func (x *MetricsConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_tab_cache_server_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MetricsConfig.ProtoReflect.Descriptor instead.
+func (*MetricsConfig) Descriptor() ([]byte, []int) {
+	return file_tab_cache_server_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *MetricsConfig) GetIsAutomatic() bool {
+	if x != nil {
+		return x.IsAutomatic
+	}
+	return false
+}
+
+func (x *MetricsConfig) GetIsEnable() bool {
+	if x != nil {
+		return x.IsEnable
+	}
+	return false
+}
+
+func (x *MetricsConfig) GetPluginName() string {
+	if x != nil {
+		return x.PluginName
+	}
+	return ""
+}
+
+func (x *MetricsConfig) GetSceneId() int64 {
+	if x != nil {
+		return x.SceneId
+	}
+	return 0
+}
+
+func (x *MetricsConfig) GetSamplingInterval() uint32 {
+	if x != nil {
+		return x.SamplingInterval
+	}
+	return 0
+}
+
+func (x *MetricsConfig) GetErrSamplingInterval() uint32 {
+	if x != nil {
+		return x.ErrSamplingInterval
+	}
+	return 0
+}
+
+func (x *MetricsConfig) GetMetadata() *MetricsMetadata {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
+// 插件的通用元数据，上报时，会将这部分信息透传给具体的插件
+type MetricsMetadata struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ExpandedData map[string]string `protobuf:"bytes,1,rep,name=expanded_data,json=expandedData,proto3" json:"expanded_data,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"` // 拓展信息，会透传这部分信息到具体的监控上报插件，方便支持每个插件的不同特性
+	Name         string            `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                                                                                             // 可以是曝光表名，也可以是指标名，由具体上报插件去定义他的用途
+	Id           string            `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`                                                                                                                                 // 唯一标识，由具体上报插件去定义他的用途
+}
+
+func (x *MetricsMetadata) Reset() {
+	*x = MetricsMetadata{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_tab_cache_server_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MetricsMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MetricsMetadata) ProtoMessage() {}
+
+func (x *MetricsMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_tab_cache_server_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MetricsMetadata.ProtoReflect.Descriptor instead.
+func (*MetricsMetadata) Descriptor() ([]byte, []int) {
+	return file_tab_cache_server_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *MetricsMetadata) GetExpandedData() map[string]string {
+	if x != nil {
+		return x.ExpandedData
+	}
+	return nil
+}
+
+func (x *MetricsMetadata) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *MetricsMetadata) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
 // 全量缓存数据
 type TabConfig struct {
 	state         protoimpl.MessageState
@@ -1966,7 +2199,7 @@ type TabConfig struct {
 func (x *TabConfig) Reset() {
 	*x = TabConfig{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tab_cache_server_proto_msgTypes[18]
+		mi := &file_tab_cache_server_proto_msgTypes[20]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1979,7 +2212,7 @@ func (x *TabConfig) String() string {
 func (*TabConfig) ProtoMessage() {}
 
 func (x *TabConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_tab_cache_server_proto_msgTypes[18]
+	mi := &file_tab_cache_server_proto_msgTypes[20]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1992,7 +2225,7 @@ func (x *TabConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TabConfig.ProtoReflect.Descriptor instead.
 func (*TabConfig) Descriptor() ([]byte, []int) {
-	return file_tab_cache_server_proto_rawDescGZIP(), []int{18}
+	return file_tab_cache_server_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *TabConfig) GetExperimentData() *ExperimentData {
@@ -2033,7 +2266,7 @@ type TabConfigManager struct {
 func (x *TabConfigManager) Reset() {
 	*x = TabConfigManager{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tab_cache_server_proto_msgTypes[19]
+		mi := &file_tab_cache_server_proto_msgTypes[21]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2046,7 +2279,7 @@ func (x *TabConfigManager) String() string {
 func (*TabConfigManager) ProtoMessage() {}
 
 func (x *TabConfigManager) ProtoReflect() protoreflect.Message {
-	mi := &file_tab_cache_server_proto_msgTypes[19]
+	mi := &file_tab_cache_server_proto_msgTypes[21]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2059,7 +2292,7 @@ func (x *TabConfigManager) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TabConfigManager.ProtoReflect.Descriptor instead.
 func (*TabConfigManager) Descriptor() ([]byte, []int) {
-	return file_tab_cache_server_proto_rawDescGZIP(), []int{19}
+	return file_tab_cache_server_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *TabConfigManager) GetBusinessCode() string {
@@ -2113,7 +2346,7 @@ type BucketInfo struct {
 func (x *BucketInfo) Reset() {
 	*x = BucketInfo{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tab_cache_server_proto_msgTypes[20]
+		mi := &file_tab_cache_server_proto_msgTypes[22]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2126,7 +2359,7 @@ func (x *BucketInfo) String() string {
 func (*BucketInfo) ProtoMessage() {}
 
 func (x *BucketInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_tab_cache_server_proto_msgTypes[20]
+	mi := &file_tab_cache_server_proto_msgTypes[22]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2139,7 +2372,7 @@ func (x *BucketInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BucketInfo.ProtoReflect.Descriptor instead.
 func (*BucketInfo) Descriptor() ([]byte, []int) {
-	return file_tab_cache_server_proto_rawDescGZIP(), []int{20}
+	return file_tab_cache_server_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *BucketInfo) GetBucketType() BucketType {
@@ -2191,7 +2424,7 @@ type BatchGetExperimentBucketReq struct {
 func (x *BatchGetExperimentBucketReq) Reset() {
 	*x = BatchGetExperimentBucketReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tab_cache_server_proto_msgTypes[21]
+		mi := &file_tab_cache_server_proto_msgTypes[23]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2204,7 +2437,7 @@ func (x *BatchGetExperimentBucketReq) String() string {
 func (*BatchGetExperimentBucketReq) ProtoMessage() {}
 
 func (x *BatchGetExperimentBucketReq) ProtoReflect() protoreflect.Message {
-	mi := &file_tab_cache_server_proto_msgTypes[21]
+	mi := &file_tab_cache_server_proto_msgTypes[23]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2217,7 +2450,7 @@ func (x *BatchGetExperimentBucketReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetExperimentBucketReq.ProtoReflect.Descriptor instead.
 func (*BatchGetExperimentBucketReq) Descriptor() ([]byte, []int) {
-	return file_tab_cache_server_proto_rawDescGZIP(), []int{21}
+	return file_tab_cache_server_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *BatchGetExperimentBucketReq) GetBusinessCode() string {
@@ -2255,7 +2488,7 @@ type BatchGetExperimentBucketResp struct {
 func (x *BatchGetExperimentBucketResp) Reset() {
 	*x = BatchGetExperimentBucketResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tab_cache_server_proto_msgTypes[22]
+		mi := &file_tab_cache_server_proto_msgTypes[24]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2268,7 +2501,7 @@ func (x *BatchGetExperimentBucketResp) String() string {
 func (*BatchGetExperimentBucketResp) ProtoMessage() {}
 
 func (x *BatchGetExperimentBucketResp) ProtoReflect() protoreflect.Message {
-	mi := &file_tab_cache_server_proto_msgTypes[22]
+	mi := &file_tab_cache_server_proto_msgTypes[24]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2281,7 +2514,7 @@ func (x *BatchGetExperimentBucketResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetExperimentBucketResp.ProtoReflect.Descriptor instead.
 func (*BatchGetExperimentBucketResp) Descriptor() ([]byte, []int) {
-	return file_tab_cache_server_proto_rawDescGZIP(), []int{22}
+	return file_tab_cache_server_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *BatchGetExperimentBucketResp) GetCode() Code {
@@ -2319,7 +2552,7 @@ type BatchGetGroupBucketReq struct {
 func (x *BatchGetGroupBucketReq) Reset() {
 	*x = BatchGetGroupBucketReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tab_cache_server_proto_msgTypes[23]
+		mi := &file_tab_cache_server_proto_msgTypes[25]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2332,7 +2565,7 @@ func (x *BatchGetGroupBucketReq) String() string {
 func (*BatchGetGroupBucketReq) ProtoMessage() {}
 
 func (x *BatchGetGroupBucketReq) ProtoReflect() protoreflect.Message {
-	mi := &file_tab_cache_server_proto_msgTypes[23]
+	mi := &file_tab_cache_server_proto_msgTypes[25]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2345,7 +2578,7 @@ func (x *BatchGetGroupBucketReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetGroupBucketReq.ProtoReflect.Descriptor instead.
 func (*BatchGetGroupBucketReq) Descriptor() ([]byte, []int) {
-	return file_tab_cache_server_proto_rawDescGZIP(), []int{23}
+	return file_tab_cache_server_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *BatchGetGroupBucketReq) GetBusinessCode() string {
@@ -2383,7 +2616,7 @@ type BatchGetGroupBucketResp struct {
 func (x *BatchGetGroupBucketResp) Reset() {
 	*x = BatchGetGroupBucketResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tab_cache_server_proto_msgTypes[24]
+		mi := &file_tab_cache_server_proto_msgTypes[26]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2396,7 +2629,7 @@ func (x *BatchGetGroupBucketResp) String() string {
 func (*BatchGetGroupBucketResp) ProtoMessage() {}
 
 func (x *BatchGetGroupBucketResp) ProtoReflect() protoreflect.Message {
-	mi := &file_tab_cache_server_proto_msgTypes[24]
+	mi := &file_tab_cache_server_proto_msgTypes[26]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2409,7 +2642,7 @@ func (x *BatchGetGroupBucketResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchGetGroupBucketResp.ProtoReflect.Descriptor instead.
 func (*BatchGetGroupBucketResp) Descriptor() ([]byte, []int) {
-	return file_tab_cache_server_proto_rawDescGZIP(), []int{24}
+	return file_tab_cache_server_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *BatchGetGroupBucketResp) GetCode() Code {
@@ -2710,8 +2943,133 @@ var file_tab_cache_server_proto_rawDesc = []byte{
 	0x62, 0x2e, 0x63, 0x61, 0x63, 0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4c,
 	0x61, 0x79, 0x65, 0x72, 0x54, 0x6f, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x44, 0x52, 0x05, 0x76,
 	0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0x0c, 0x0a, 0x0a, 0x43, 0x6f, 0x6e, 0x66,
-	0x69, 0x67, 0x44, 0x61, 0x74, 0x61, 0x22, 0x0d, 0x0a, 0x0b, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x6f,
-	0x6c, 0x44, 0x61, 0x74, 0x61, 0x22, 0xf8, 0x01, 0x0a, 0x09, 0x54, 0x61, 0x62, 0x43, 0x6f, 0x6e,
+	0x69, 0x67, 0x44, 0x61, 0x74, 0x61, 0x22, 0xc5, 0x0b, 0x0a, 0x0b, 0x43, 0x6f, 0x6e, 0x74, 0x72,
+	0x6f, 0x6c, 0x44, 0x61, 0x74, 0x61, 0x12, 0x29, 0x0a, 0x10, 0x72, 0x65, 0x66, 0x72, 0x65, 0x73,
+	0x68, 0x5f, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d,
+	0x52, 0x0f, 0x72, 0x65, 0x66, 0x72, 0x65, 0x73, 0x68, 0x49, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61,
+	0x6c, 0x12, 0x76, 0x0a, 0x16, 0x69, 0x67, 0x6e, 0x6f, 0x72, 0x65, 0x5f, 0x72, 0x65, 0x70, 0x6f,
+	0x72, 0x74, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x03, 0x28,
+	0x0b, 0x32, 0x41, 0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e, 0x74,
+	0x61, 0x62, 0x2e, 0x63, 0x61, 0x63, 0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e,
+	0x43, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x44, 0x61, 0x74, 0x61, 0x2e, 0x49, 0x67, 0x6e, 0x6f,
+	0x72, 0x65, 0x52, 0x65, 0x70, 0x6f, 0x72, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x45,
+	0x6e, 0x74, 0x72, 0x79, 0x52, 0x13, 0x69, 0x67, 0x6e, 0x6f, 0x72, 0x65, 0x52, 0x65, 0x70, 0x6f,
+	0x72, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x12, 0x81, 0x01, 0x0a, 0x19, 0x65, 0x78,
+	0x70, 0x65, 0x72, 0x69, 0x6d, 0x65, 0x6e, 0x74, 0x5f, 0x6d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73,
+	0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x45, 0x2e,
+	0x6f, 0x70, 0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e, 0x74, 0x61, 0x62, 0x2e, 0x63,
+	0x61, 0x63, 0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x43, 0x6f, 0x6e, 0x74,
+	0x72, 0x6f, 0x6c, 0x44, 0x61, 0x74, 0x61, 0x2e, 0x45, 0x78, 0x70, 0x65, 0x72, 0x69, 0x6d, 0x65,
+	0x6e, 0x74, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x45,
+	0x6e, 0x74, 0x72, 0x79, 0x52, 0x17, 0x65, 0x78, 0x70, 0x65, 0x72, 0x69, 0x6d, 0x65, 0x6e, 0x74,
+	0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x75, 0x0a,
+	0x21, 0x64, 0x65, 0x66, 0x61, 0x75, 0x6c, 0x74, 0x5f, 0x65, 0x78, 0x70, 0x65, 0x72, 0x69, 0x6d,
+	0x65, 0x6e, 0x74, 0x5f, 0x6d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x5f, 0x63, 0x6f, 0x6e, 0x66,
+	0x69, 0x67, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2a, 0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x73,
+	0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e, 0x74, 0x61, 0x62, 0x2e, 0x63, 0x61, 0x63, 0x68, 0x65, 0x5f,
+	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f,
+	0x6e, 0x66, 0x69, 0x67, 0x52, 0x1e, 0x64, 0x65, 0x66, 0x61, 0x75, 0x6c, 0x74, 0x45, 0x78, 0x70,
+	0x65, 0x72, 0x69, 0x6d, 0x65, 0x6e, 0x74, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f,
+	0x6e, 0x66, 0x69, 0x67, 0x12, 0x88, 0x01, 0x0a, 0x1c, 0x72, 0x65, 0x6d, 0x6f, 0x74, 0x65, 0x5f,
+	0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x5f, 0x6d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x5f, 0x63,
+	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x47, 0x2e, 0x6f, 0x70,
+	0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e, 0x74, 0x61, 0x62, 0x2e, 0x63, 0x61, 0x63,
+	0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x6f,
+	0x6c, 0x44, 0x61, 0x74, 0x61, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x74, 0x65, 0x43, 0x6f, 0x6e, 0x66,
+	0x69, 0x67, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x45,
+	0x6e, 0x74, 0x72, 0x79, 0x52, 0x19, 0x72, 0x65, 0x6d, 0x6f, 0x74, 0x65, 0x43, 0x6f, 0x6e, 0x66,
+	0x69, 0x67, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12,
+	0x7a, 0x0a, 0x24, 0x64, 0x65, 0x66, 0x61, 0x75, 0x6c, 0x74, 0x5f, 0x72, 0x65, 0x6d, 0x6f, 0x74,
+	0x65, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x5f, 0x6d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73,
+	0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2a, 0x2e,
+	0x6f, 0x70, 0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e, 0x74, 0x61, 0x62, 0x2e, 0x63,
+	0x61, 0x63, 0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x74, 0x72,
+	0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x20, 0x64, 0x65, 0x66, 0x61, 0x75,
+	0x6c, 0x74, 0x52, 0x65, 0x6d, 0x6f, 0x74, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x4d, 0x65,
+	0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x85, 0x01, 0x0a, 0x1b,
+	0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x5f, 0x66, 0x6c, 0x61, 0x67, 0x5f, 0x6d, 0x65, 0x74,
+	0x72, 0x69, 0x63, 0x73, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x07, 0x20, 0x03, 0x28,
+	0x0b, 0x32, 0x46, 0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e, 0x74,
+	0x61, 0x62, 0x2e, 0x63, 0x61, 0x63, 0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e,
+	0x43, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x44, 0x61, 0x74, 0x61, 0x2e, 0x46, 0x65, 0x61, 0x74,
+	0x75, 0x72, 0x65, 0x46, 0x6c, 0x61, 0x67, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f,
+	0x6e, 0x66, 0x69, 0x67, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x18, 0x66, 0x65, 0x61, 0x74, 0x75,
+	0x72, 0x65, 0x46, 0x6c, 0x61, 0x67, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e,
+	0x66, 0x69, 0x67, 0x12, 0x78, 0x0a, 0x23, 0x64, 0x65, 0x66, 0x61, 0x75, 0x6c, 0x74, 0x5f, 0x66,
+	0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x5f, 0x66, 0x6c, 0x61, 0x67, 0x5f, 0x6d, 0x65, 0x74, 0x72,
+	0x69, 0x63, 0x73, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x08, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x2a, 0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e, 0x74, 0x61,
+	0x62, 0x2e, 0x63, 0x61, 0x63, 0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d,
+	0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x1f, 0x64, 0x65,
+	0x66, 0x61, 0x75, 0x6c, 0x74, 0x46, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x46, 0x6c, 0x61, 0x67,
+	0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x5c, 0x0a,
+	0x14, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x5f, 0x6d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x5f, 0x63,
+	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x09, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2a, 0x2e, 0x6f, 0x70,
+	0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e, 0x74, 0x61, 0x62, 0x2e, 0x63, 0x61, 0x63,
+	0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63,
+	0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x12, 0x65, 0x76, 0x65, 0x6e, 0x74, 0x4d, 0x65,
+	0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x1a, 0x46, 0x0a, 0x18, 0x49,
+	0x67, 0x6e, 0x6f, 0x72, 0x65, 0x52, 0x65, 0x70, 0x6f, 0x72, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70,
+	0x49, 0x64, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x03, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c,
+	0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a,
+	0x02, 0x38, 0x01, 0x1a, 0x76, 0x0a, 0x1c, 0x45, 0x78, 0x70, 0x65, 0x72, 0x69, 0x6d, 0x65, 0x6e,
+	0x74, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x45, 0x6e,
+	0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03,
+	0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x40, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x2a, 0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63,
+	0x65, 0x2e, 0x74, 0x61, 0x62, 0x2e, 0x63, 0x61, 0x63, 0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76,
+	0x65, 0x72, 0x2e, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67,
+	0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x1a, 0x78, 0x0a, 0x1e, 0x52,
+	0x65, 0x6d, 0x6f, 0x74, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x4d, 0x65, 0x74, 0x72, 0x69,
+	0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a,
+	0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12,
+	0x40, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2a,
+	0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e, 0x74, 0x61, 0x62, 0x2e,
+	0x63, 0x61, 0x63, 0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x74,
+	0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75,
+	0x65, 0x3a, 0x02, 0x38, 0x01, 0x1a, 0x77, 0x0a, 0x1d, 0x46, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65,
+	0x46, 0x6c, 0x61, 0x67, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69,
+	0x67, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x03, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x40, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75,
+	0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2a, 0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x73, 0x6f,
+	0x75, 0x72, 0x63, 0x65, 0x2e, 0x74, 0x61, 0x62, 0x2e, 0x63, 0x61, 0x63, 0x68, 0x65, 0x5f, 0x73,
+	0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e,
+	0x66, 0x69, 0x67, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0xb6,
+	0x02, 0x0a, 0x0d, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67,
+	0x12, 0x21, 0x0a, 0x0c, 0x69, 0x73, 0x5f, 0x61, 0x75, 0x74, 0x6f, 0x6d, 0x61, 0x74, 0x69, 0x63,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0b, 0x69, 0x73, 0x41, 0x75, 0x74, 0x6f, 0x6d, 0x61,
+	0x74, 0x69, 0x63, 0x12, 0x1b, 0x0a, 0x09, 0x69, 0x73, 0x5f, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x69, 0x73, 0x45, 0x6e, 0x61, 0x62, 0x6c, 0x65,
+	0x12, 0x1f, 0x0a, 0x0b, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x70, 0x6c, 0x75, 0x67, 0x69, 0x6e, 0x4e, 0x61, 0x6d,
+	0x65, 0x12, 0x19, 0x0a, 0x08, 0x73, 0x63, 0x65, 0x6e, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x04, 0x20,
+	0x01, 0x28, 0x03, 0x52, 0x07, 0x73, 0x63, 0x65, 0x6e, 0x65, 0x49, 0x64, 0x12, 0x2b, 0x0a, 0x11,
+	0x73, 0x61, 0x6d, 0x70, 0x6c, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61,
+	0x6c, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x10, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x69, 0x6e,
+	0x67, 0x49, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x12, 0x32, 0x0a, 0x15, 0x65, 0x72, 0x72,
+	0x5f, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x76,
+	0x61, 0x6c, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x13, 0x65, 0x72, 0x72, 0x53, 0x61, 0x6d,
+	0x70, 0x6c, 0x69, 0x6e, 0x67, 0x49, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x12, 0x48, 0x0a,
+	0x08, 0x6d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x2c, 0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e, 0x74, 0x61, 0x62,
+	0x2e, 0x63, 0x61, 0x63, 0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65,
+	0x74, 0x72, 0x69, 0x63, 0x73, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x52, 0x08, 0x6d,
+	0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x22, 0xdb, 0x01, 0x0a, 0x0f, 0x4d, 0x65, 0x74, 0x72,
+	0x69, 0x63, 0x73, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x12, 0x63, 0x0a, 0x0d, 0x65,
+	0x78, 0x70, 0x61, 0x6e, 0x64, 0x65, 0x64, 0x5f, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x03,
+	0x28, 0x0b, 0x32, 0x3e, 0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e,
+	0x74, 0x61, 0x62, 0x2e, 0x63, 0x61, 0x63, 0x68, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72,
+	0x2e, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61,
+	0x2e, 0x45, 0x78, 0x70, 0x61, 0x6e, 0x64, 0x65, 0x64, 0x44, 0x61, 0x74, 0x61, 0x45, 0x6e, 0x74,
+	0x72, 0x79, 0x52, 0x0c, 0x65, 0x78, 0x70, 0x61, 0x6e, 0x64, 0x65, 0x64, 0x44, 0x61, 0x74, 0x61,
+	0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04,
+	0x6e, 0x61, 0x6d, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x02, 0x69, 0x64, 0x1a, 0x3f, 0x0a, 0x11, 0x45, 0x78, 0x70, 0x61, 0x6e, 0x64, 0x65, 0x64,
+	0x44, 0x61, 0x74, 0x61, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76,
+	0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75,
+	0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0xf8, 0x01, 0x0a, 0x09, 0x54, 0x61, 0x62, 0x43, 0x6f, 0x6e,
 	0x66, 0x69, 0x67, 0x12, 0x54, 0x0a, 0x0f, 0x65, 0x78, 0x70, 0x65, 0x72, 0x69, 0x6d, 0x65, 0x6e,
 	0x74, 0x5f, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2b, 0x2e, 0x6f,
 	0x70, 0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x2e, 0x74, 0x61, 0x62, 0x2e, 0x63, 0x61,
@@ -2989,7 +3347,7 @@ func file_tab_cache_server_proto_rawDescGZIP() []byte {
 }
 
 var file_tab_cache_server_proto_enumTypes = make([]protoimpl.EnumInfo, 12)
-var file_tab_cache_server_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
+var file_tab_cache_server_proto_msgTypes = make([]protoimpl.MessageInfo, 41)
 var file_tab_cache_server_proto_goTypes = []interface{}{
 	(OriginType)(0),                      // 0: opensource.tab.cache_server.OriginType
 	(UpdateType)(0),                      // 1: opensource.tab.cache_server.UpdateType
@@ -3021,43 +3379,50 @@ var file_tab_cache_server_proto_goTypes = []interface{}{
 	(*ExperimentData)(nil),               // 27: opensource.tab.cache_server.ExperimentData
 	(*ConfigData)(nil),                   // 28: opensource.tab.cache_server.ConfigData
 	(*ControlData)(nil),                  // 29: opensource.tab.cache_server.ControlData
-	(*TabConfig)(nil),                    // 30: opensource.tab.cache_server.TabConfig
-	(*TabConfigManager)(nil),             // 31: opensource.tab.cache_server.TabConfigManager
-	(*BucketInfo)(nil),                   // 32: opensource.tab.cache_server.BucketInfo
-	(*BatchGetExperimentBucketReq)(nil),  // 33: opensource.tab.cache_server.BatchGetExperimentBucketReq
-	(*BatchGetExperimentBucketResp)(nil), // 34: opensource.tab.cache_server.BatchGetExperimentBucketResp
-	(*BatchGetGroupBucketReq)(nil),       // 35: opensource.tab.cache_server.BatchGetGroupBucketReq
-	(*BatchGetGroupBucketResp)(nil),      // 36: opensource.tab.cache_server.BatchGetGroupBucketResp
-	nil,                                  // 37: opensource.tab.cache_server.LayerToGroupID.LayerToGroupIdEntry
-	nil,                                  // 38: opensource.tab.cache_server.Layer.ExperimentIndexEntry
-	nil,                                  // 39: opensource.tab.cache_server.Experiment.GroupIndexEntry
-	nil,                                  // 40: opensource.tab.cache_server.Group.ParamsEntry
-	nil,                                  // 41: opensource.tab.cache_server.ExperimentData.OverrideListEntry
-	nil,                                  // 42: opensource.tab.cache_server.BatchGetExperimentBucketReq.BucketVersionIndexEntry
-	nil,                                  // 43: opensource.tab.cache_server.BatchGetExperimentBucketResp.BucketIndexEntry
-	nil,                                  // 44: opensource.tab.cache_server.BatchGetGroupBucketReq.BucketVersionIndexEntry
-	nil,                                  // 45: opensource.tab.cache_server.BatchGetGroupBucketResp.BucketIndexEntry
+	(*MetricsConfig)(nil),                // 30: opensource.tab.cache_server.MetricsConfig
+	(*MetricsMetadata)(nil),              // 31: opensource.tab.cache_server.MetricsMetadata
+	(*TabConfig)(nil),                    // 32: opensource.tab.cache_server.TabConfig
+	(*TabConfigManager)(nil),             // 33: opensource.tab.cache_server.TabConfigManager
+	(*BucketInfo)(nil),                   // 34: opensource.tab.cache_server.BucketInfo
+	(*BatchGetExperimentBucketReq)(nil),  // 35: opensource.tab.cache_server.BatchGetExperimentBucketReq
+	(*BatchGetExperimentBucketResp)(nil), // 36: opensource.tab.cache_server.BatchGetExperimentBucketResp
+	(*BatchGetGroupBucketReq)(nil),       // 37: opensource.tab.cache_server.BatchGetGroupBucketReq
+	(*BatchGetGroupBucketResp)(nil),      // 38: opensource.tab.cache_server.BatchGetGroupBucketResp
+	nil,                                  // 39: opensource.tab.cache_server.LayerToGroupID.LayerToGroupIdEntry
+	nil,                                  // 40: opensource.tab.cache_server.Layer.ExperimentIndexEntry
+	nil,                                  // 41: opensource.tab.cache_server.Experiment.GroupIndexEntry
+	nil,                                  // 42: opensource.tab.cache_server.Group.ParamsEntry
+	nil,                                  // 43: opensource.tab.cache_server.ExperimentData.OverrideListEntry
+	nil,                                  // 44: opensource.tab.cache_server.ControlData.IgnoreReportGroupIdEntry
+	nil,                                  // 45: opensource.tab.cache_server.ControlData.ExperimentMetricsConfigEntry
+	nil,                                  // 46: opensource.tab.cache_server.ControlData.RemoteConfigMetricsConfigEntry
+	nil,                                  // 47: opensource.tab.cache_server.ControlData.FeatureFlagMetricsConfigEntry
+	nil,                                  // 48: opensource.tab.cache_server.MetricsMetadata.ExpandedDataEntry
+	nil,                                  // 49: opensource.tab.cache_server.BatchGetExperimentBucketReq.BucketVersionIndexEntry
+	nil,                                  // 50: opensource.tab.cache_server.BatchGetExperimentBucketResp.BucketIndexEntry
+	nil,                                  // 51: opensource.tab.cache_server.BatchGetGroupBucketReq.BucketVersionIndexEntry
+	nil,                                  // 52: opensource.tab.cache_server.BatchGetGroupBucketResp.BucketIndexEntry
 }
 var file_tab_cache_server_proto_depIdxs = []int32{
 	1,  // 0: opensource.tab.cache_server.GetTabConfigReq.update_type:type_name -> opensource.tab.cache_server.UpdateType
 	2,  // 1: opensource.tab.cache_server.GetTabConfigResp.code:type_name -> opensource.tab.cache_server.Code
-	31, // 2: opensource.tab.cache_server.GetTabConfigResp.tab_config_manager:type_name -> opensource.tab.cache_server.TabConfigManager
-	37, // 3: opensource.tab.cache_server.LayerToGroupID.layer_to_group_id:type_name -> opensource.tab.cache_server.LayerToGroupID.LayerToGroupIdEntry
+	33, // 2: opensource.tab.cache_server.GetTabConfigResp.tab_config_manager:type_name -> opensource.tab.cache_server.TabConfigManager
+	39, // 3: opensource.tab.cache_server.LayerToGroupID.layer_to_group_id:type_name -> opensource.tab.cache_server.LayerToGroupID.LayerToGroupIdEntry
 	24, // 4: opensource.tab.cache_server.Domain.metadata:type_name -> opensource.tab.cache_server.DomainMetadata
 	18, // 5: opensource.tab.cache_server.Domain.holdout_domain_list:type_name -> opensource.tab.cache_server.HoldoutDomain
 	19, // 6: opensource.tab.cache_server.Domain.multi_layer_domain_list:type_name -> opensource.tab.cache_server.MultiLayerDomain
 	15, // 7: opensource.tab.cache_server.Domain.domain_list:type_name -> opensource.tab.cache_server.Domain
 	25, // 8: opensource.tab.cache_server.Layer.metadata:type_name -> opensource.tab.cache_server.LayerMetadata
 	20, // 9: opensource.tab.cache_server.Layer.group_list:type_name -> opensource.tab.cache_server.Group
-	38, // 10: opensource.tab.cache_server.Layer.experiment_index:type_name -> opensource.tab.cache_server.Layer.ExperimentIndexEntry
+	40, // 10: opensource.tab.cache_server.Layer.experiment_index:type_name -> opensource.tab.cache_server.Layer.ExperimentIndexEntry
 	3,  // 11: opensource.tab.cache_server.Experiment.hash_method:type_name -> opensource.tab.cache_server.HashMethod
 	7,  // 12: opensource.tab.cache_server.Experiment.issue_type:type_name -> opensource.tab.cache_server.IssueType
-	39, // 13: opensource.tab.cache_server.Experiment.group_index:type_name -> opensource.tab.cache_server.Experiment.GroupIndexEntry
+	41, // 13: opensource.tab.cache_server.Experiment.group_index:type_name -> opensource.tab.cache_server.Experiment.GroupIndexEntry
 	24, // 14: opensource.tab.cache_server.HoldoutDomain.metadata:type_name -> opensource.tab.cache_server.DomainMetadata
 	16, // 15: opensource.tab.cache_server.HoldoutDomain.layer_list:type_name -> opensource.tab.cache_server.Layer
 	24, // 16: opensource.tab.cache_server.MultiLayerDomain.metadata:type_name -> opensource.tab.cache_server.DomainMetadata
 	16, // 17: opensource.tab.cache_server.MultiLayerDomain.layer_list:type_name -> opensource.tab.cache_server.Layer
-	40, // 18: opensource.tab.cache_server.Group.params:type_name -> opensource.tab.cache_server.Group.ParamsEntry
+	42, // 18: opensource.tab.cache_server.Group.params:type_name -> opensource.tab.cache_server.Group.ParamsEntry
 	21, // 19: opensource.tab.cache_server.Group.issue_info:type_name -> opensource.tab.cache_server.IssueInfo
 	7,  // 20: opensource.tab.cache_server.IssueInfo.issue_type:type_name -> opensource.tab.cache_server.IssueType
 	22, // 21: opensource.tab.cache_server.IssueInfo.tag_list_group:type_name -> opensource.tab.cache_server.tagList
@@ -3074,38 +3439,51 @@ var file_tab_cache_server_proto_depIdxs = []int32{
 	3,  // 32: opensource.tab.cache_server.LayerMetadata.hash_method:type_name -> opensource.tab.cache_server.HashMethod
 	9,  // 33: opensource.tab.cache_server.LayerMetadata.unit_id_type:type_name -> opensource.tab.cache_server.UnitIDType
 	26, // 34: opensource.tab.cache_server.LayerMetadata.traffic_range_list:type_name -> opensource.tab.cache_server.TrafficRange
-	41, // 35: opensource.tab.cache_server.ExperimentData.override_list:type_name -> opensource.tab.cache_server.ExperimentData.OverrideListEntry
+	43, // 35: opensource.tab.cache_server.ExperimentData.override_list:type_name -> opensource.tab.cache_server.ExperimentData.OverrideListEntry
 	15, // 36: opensource.tab.cache_server.ExperimentData.global_domain:type_name -> opensource.tab.cache_server.Domain
-	27, // 37: opensource.tab.cache_server.TabConfig.experiment_data:type_name -> opensource.tab.cache_server.ExperimentData
-	28, // 38: opensource.tab.cache_server.TabConfig.config_data:type_name -> opensource.tab.cache_server.ConfigData
-	29, // 39: opensource.tab.cache_server.TabConfig.control_data:type_name -> opensource.tab.cache_server.ControlData
-	1,  // 40: opensource.tab.cache_server.TabConfigManager.update_type:type_name -> opensource.tab.cache_server.UpdateType
-	30, // 41: opensource.tab.cache_server.TabConfigManager.tab_config:type_name -> opensource.tab.cache_server.TabConfig
-	10, // 42: opensource.tab.cache_server.BucketInfo.bucket_type:type_name -> opensource.tab.cache_server.BucketType
-	26, // 43: opensource.tab.cache_server.BucketInfo.traffic_range:type_name -> opensource.tab.cache_server.TrafficRange
-	11, // 44: opensource.tab.cache_server.BucketInfo.modify_type:type_name -> opensource.tab.cache_server.ModifyType
-	42, // 45: opensource.tab.cache_server.BatchGetExperimentBucketReq.bucket_version_index:type_name -> opensource.tab.cache_server.BatchGetExperimentBucketReq.BucketVersionIndexEntry
-	2,  // 46: opensource.tab.cache_server.BatchGetExperimentBucketResp.code:type_name -> opensource.tab.cache_server.Code
-	43, // 47: opensource.tab.cache_server.BatchGetExperimentBucketResp.bucketIndex:type_name -> opensource.tab.cache_server.BatchGetExperimentBucketResp.BucketIndexEntry
-	44, // 48: opensource.tab.cache_server.BatchGetGroupBucketReq.bucket_version_index:type_name -> opensource.tab.cache_server.BatchGetGroupBucketReq.BucketVersionIndexEntry
-	2,  // 49: opensource.tab.cache_server.BatchGetGroupBucketResp.code:type_name -> opensource.tab.cache_server.Code
-	45, // 50: opensource.tab.cache_server.BatchGetGroupBucketResp.bucketIndex:type_name -> opensource.tab.cache_server.BatchGetGroupBucketResp.BucketIndexEntry
-	17, // 51: opensource.tab.cache_server.Layer.ExperimentIndexEntry.value:type_name -> opensource.tab.cache_server.Experiment
-	20, // 52: opensource.tab.cache_server.Experiment.GroupIndexEntry.value:type_name -> opensource.tab.cache_server.Group
-	14, // 53: opensource.tab.cache_server.ExperimentData.OverrideListEntry.value:type_name -> opensource.tab.cache_server.LayerToGroupID
-	32, // 54: opensource.tab.cache_server.BatchGetExperimentBucketResp.BucketIndexEntry.value:type_name -> opensource.tab.cache_server.BucketInfo
-	32, // 55: opensource.tab.cache_server.BatchGetGroupBucketResp.BucketIndexEntry.value:type_name -> opensource.tab.cache_server.BucketInfo
-	12, // 56: opensource.tab.cache_server.APIServer.GetTabConfig:input_type -> opensource.tab.cache_server.GetTabConfigReq
-	33, // 57: opensource.tab.cache_server.APIServer.BatchGetExperimentBucket:input_type -> opensource.tab.cache_server.BatchGetExperimentBucketReq
-	35, // 58: opensource.tab.cache_server.APIServer.BatchGetGroupBucket:input_type -> opensource.tab.cache_server.BatchGetGroupBucketReq
-	13, // 59: opensource.tab.cache_server.APIServer.GetTabConfig:output_type -> opensource.tab.cache_server.GetTabConfigResp
-	34, // 60: opensource.tab.cache_server.APIServer.BatchGetExperimentBucket:output_type -> opensource.tab.cache_server.BatchGetExperimentBucketResp
-	36, // 61: opensource.tab.cache_server.APIServer.BatchGetGroupBucket:output_type -> opensource.tab.cache_server.BatchGetGroupBucketResp
-	59, // [59:62] is the sub-list for method output_type
-	56, // [56:59] is the sub-list for method input_type
-	56, // [56:56] is the sub-list for extension type_name
-	56, // [56:56] is the sub-list for extension extendee
-	0,  // [0:56] is the sub-list for field type_name
+	44, // 37: opensource.tab.cache_server.ControlData.ignore_report_group_id:type_name -> opensource.tab.cache_server.ControlData.IgnoreReportGroupIdEntry
+	45, // 38: opensource.tab.cache_server.ControlData.experiment_metrics_config:type_name -> opensource.tab.cache_server.ControlData.ExperimentMetricsConfigEntry
+	30, // 39: opensource.tab.cache_server.ControlData.default_experiment_metrics_config:type_name -> opensource.tab.cache_server.MetricsConfig
+	46, // 40: opensource.tab.cache_server.ControlData.remote_config_metrics_config:type_name -> opensource.tab.cache_server.ControlData.RemoteConfigMetricsConfigEntry
+	30, // 41: opensource.tab.cache_server.ControlData.default_remote_config_metrics_config:type_name -> opensource.tab.cache_server.MetricsConfig
+	47, // 42: opensource.tab.cache_server.ControlData.feature_flag_metrics_config:type_name -> opensource.tab.cache_server.ControlData.FeatureFlagMetricsConfigEntry
+	30, // 43: opensource.tab.cache_server.ControlData.default_feature_flag_metrics_config:type_name -> opensource.tab.cache_server.MetricsConfig
+	30, // 44: opensource.tab.cache_server.ControlData.event_metrics_config:type_name -> opensource.tab.cache_server.MetricsConfig
+	31, // 45: opensource.tab.cache_server.MetricsConfig.metadata:type_name -> opensource.tab.cache_server.MetricsMetadata
+	48, // 46: opensource.tab.cache_server.MetricsMetadata.expanded_data:type_name -> opensource.tab.cache_server.MetricsMetadata.ExpandedDataEntry
+	27, // 47: opensource.tab.cache_server.TabConfig.experiment_data:type_name -> opensource.tab.cache_server.ExperimentData
+	28, // 48: opensource.tab.cache_server.TabConfig.config_data:type_name -> opensource.tab.cache_server.ConfigData
+	29, // 49: opensource.tab.cache_server.TabConfig.control_data:type_name -> opensource.tab.cache_server.ControlData
+	1,  // 50: opensource.tab.cache_server.TabConfigManager.update_type:type_name -> opensource.tab.cache_server.UpdateType
+	32, // 51: opensource.tab.cache_server.TabConfigManager.tab_config:type_name -> opensource.tab.cache_server.TabConfig
+	10, // 52: opensource.tab.cache_server.BucketInfo.bucket_type:type_name -> opensource.tab.cache_server.BucketType
+	26, // 53: opensource.tab.cache_server.BucketInfo.traffic_range:type_name -> opensource.tab.cache_server.TrafficRange
+	11, // 54: opensource.tab.cache_server.BucketInfo.modify_type:type_name -> opensource.tab.cache_server.ModifyType
+	49, // 55: opensource.tab.cache_server.BatchGetExperimentBucketReq.bucket_version_index:type_name -> opensource.tab.cache_server.BatchGetExperimentBucketReq.BucketVersionIndexEntry
+	2,  // 56: opensource.tab.cache_server.BatchGetExperimentBucketResp.code:type_name -> opensource.tab.cache_server.Code
+	50, // 57: opensource.tab.cache_server.BatchGetExperimentBucketResp.bucketIndex:type_name -> opensource.tab.cache_server.BatchGetExperimentBucketResp.BucketIndexEntry
+	51, // 58: opensource.tab.cache_server.BatchGetGroupBucketReq.bucket_version_index:type_name -> opensource.tab.cache_server.BatchGetGroupBucketReq.BucketVersionIndexEntry
+	2,  // 59: opensource.tab.cache_server.BatchGetGroupBucketResp.code:type_name -> opensource.tab.cache_server.Code
+	52, // 60: opensource.tab.cache_server.BatchGetGroupBucketResp.bucketIndex:type_name -> opensource.tab.cache_server.BatchGetGroupBucketResp.BucketIndexEntry
+	17, // 61: opensource.tab.cache_server.Layer.ExperimentIndexEntry.value:type_name -> opensource.tab.cache_server.Experiment
+	20, // 62: opensource.tab.cache_server.Experiment.GroupIndexEntry.value:type_name -> opensource.tab.cache_server.Group
+	14, // 63: opensource.tab.cache_server.ExperimentData.OverrideListEntry.value:type_name -> opensource.tab.cache_server.LayerToGroupID
+	30, // 64: opensource.tab.cache_server.ControlData.ExperimentMetricsConfigEntry.value:type_name -> opensource.tab.cache_server.MetricsConfig
+	30, // 65: opensource.tab.cache_server.ControlData.RemoteConfigMetricsConfigEntry.value:type_name -> opensource.tab.cache_server.MetricsConfig
+	30, // 66: opensource.tab.cache_server.ControlData.FeatureFlagMetricsConfigEntry.value:type_name -> opensource.tab.cache_server.MetricsConfig
+	34, // 67: opensource.tab.cache_server.BatchGetExperimentBucketResp.BucketIndexEntry.value:type_name -> opensource.tab.cache_server.BucketInfo
+	34, // 68: opensource.tab.cache_server.BatchGetGroupBucketResp.BucketIndexEntry.value:type_name -> opensource.tab.cache_server.BucketInfo
+	12, // 69: opensource.tab.cache_server.APIServer.GetTabConfig:input_type -> opensource.tab.cache_server.GetTabConfigReq
+	35, // 70: opensource.tab.cache_server.APIServer.BatchGetExperimentBucket:input_type -> opensource.tab.cache_server.BatchGetExperimentBucketReq
+	37, // 71: opensource.tab.cache_server.APIServer.BatchGetGroupBucket:input_type -> opensource.tab.cache_server.BatchGetGroupBucketReq
+	13, // 72: opensource.tab.cache_server.APIServer.GetTabConfig:output_type -> opensource.tab.cache_server.GetTabConfigResp
+	36, // 73: opensource.tab.cache_server.APIServer.BatchGetExperimentBucket:output_type -> opensource.tab.cache_server.BatchGetExperimentBucketResp
+	38, // 74: opensource.tab.cache_server.APIServer.BatchGetGroupBucket:output_type -> opensource.tab.cache_server.BatchGetGroupBucketResp
+	72, // [72:75] is the sub-list for method output_type
+	69, // [69:72] is the sub-list for method input_type
+	69, // [69:69] is the sub-list for extension type_name
+	69, // [69:69] is the sub-list for extension extendee
+	0,  // [0:69] is the sub-list for field type_name
 }
 
 func init() { file_tab_cache_server_proto_init() }
@@ -3331,7 +3709,7 @@ func file_tab_cache_server_proto_init() {
 			}
 		}
 		file_tab_cache_server_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TabConfig); i {
+			switch v := v.(*MetricsConfig); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3343,7 +3721,7 @@ func file_tab_cache_server_proto_init() {
 			}
 		}
 		file_tab_cache_server_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TabConfigManager); i {
+			switch v := v.(*MetricsMetadata); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3355,7 +3733,7 @@ func file_tab_cache_server_proto_init() {
 			}
 		}
 		file_tab_cache_server_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BucketInfo); i {
+			switch v := v.(*TabConfig); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3367,7 +3745,7 @@ func file_tab_cache_server_proto_init() {
 			}
 		}
 		file_tab_cache_server_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BatchGetExperimentBucketReq); i {
+			switch v := v.(*TabConfigManager); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3379,7 +3757,7 @@ func file_tab_cache_server_proto_init() {
 			}
 		}
 		file_tab_cache_server_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BatchGetExperimentBucketResp); i {
+			switch v := v.(*BucketInfo); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3391,7 +3769,7 @@ func file_tab_cache_server_proto_init() {
 			}
 		}
 		file_tab_cache_server_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BatchGetGroupBucketReq); i {
+			switch v := v.(*BatchGetExperimentBucketReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3403,6 +3781,30 @@ func file_tab_cache_server_proto_init() {
 			}
 		}
 		file_tab_cache_server_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*BatchGetExperimentBucketResp); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_tab_cache_server_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*BatchGetGroupBucketReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_tab_cache_server_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*BatchGetGroupBucketResp); i {
 			case 0:
 				return &v.state
@@ -3421,7 +3823,7 @@ func file_tab_cache_server_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_tab_cache_server_proto_rawDesc,
 			NumEnums:      12,
-			NumMessages:   34,
+			NumMessages:   41,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
