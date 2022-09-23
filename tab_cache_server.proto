@@ -242,8 +242,41 @@ message ExperimentData {
   Domain global_domain = 3; // 实验层域结构
 }
 
-// 配置缓存数据
-message ConfigData {}
+// 远程配置缓存数据
+message RemoteConfigData {
+  map<string, RemoteConfig> remote_config_index = 1; // 远程配置索引，key 为配置 key
+}
+
+// 远程配置
+message RemoteConfig {
+  string key = 1; // 配置 key
+  bytes default_value = 2; // 远程配置默认值
+  string version = 3; // 版本号，远程配置每次改动都会生产一个版本号
+  repeated int64 scene_id_list = 4; //  绑定的场景 ID
+  RemoteConfigValueType type = 5; // 远程配置值的类型
+  map<string, bytes> override_list = 10; // 白名单 set，key 为 unitID，value 为具体命中的配置值
+  repeated Condition condition_list = 6; // 条件分支，从上往下
+}
+
+message Condition {
+  int64 id = 1; // 条件 ID
+  string key = 2; // 条件 key
+  bytes value = 3; // 条件值
+  HashMethod hash_method = 4; // hash 算法
+  int64 hash_seed = 5; // hash 种子
+  string experiment_key = 6; // 绑定的实验 key，没有绑定则为空
+  int64 bucket_size = 7; // 桶大小，默认 100
+  BucketInfo bucket_info = 8; // 条件的桶信息不独立下发，一般是区间形式
+  IssueInfo issue_info = 10; // 条件下发信息
+}
+
+// 远程配置值的类型
+enum RemoteConfigValueType {
+  REMOTE_CONFIG_VALUE_TYPE_UNKNOWN = 0;
+  REMOTE_CONFIG_VALUE_TYPE_BOOL = 1; // 布尔类型，开关
+  REMOTE_CONFIG_VALUE_TYPE_BYTES = 2; // 二进制类型，通用的配置值
+  REMOTE_CONFIG_VALUE_TYPE_URL = 3; // url，具体配置值需要拉取对应链接获取
+}
 
 // 系统控制信息缓存数据，business 下全局配置
 message ControlData {
@@ -283,7 +316,7 @@ message MetricsMetadata {
 // 全量缓存数据
 message TabConfig {
   ExperimentData experiment_data = 1;
-  ConfigData config_data = 2; // 配置信息，开关相关也是基于配置，底层逻辑一致
+  RemoteConfigData config_data = 2; // 远程配置信息，开关相关也是基于配置，底层逻辑一致
   ControlData control_data = 3; // business 下的全局配置信息
 }
 
