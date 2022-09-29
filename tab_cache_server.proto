@@ -124,6 +124,7 @@ message Group {
   bool is_control = 7; // 是否是对照组
   string layer_key = 8; // 冗余字段，存放所属层 key
   IssueInfo issue_info = 9; // 下发信息
+  repeated int64 scene_id_list = 10; // 场景 ID 列表
 }
 
 // 实验下发信息
