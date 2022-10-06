@@ -227,7 +227,7 @@ message LayerMetadata {
   int64 hash_seed = 5; // hash 种子
   repeated int64 scene_id_list = 6; // 场景列表，相当于染色，逻辑隔离
   UnitIDType unit_id_type = 7; // 分流使用的 ID 类型，用于分流ID（一般是账号体系）灰度切换使用
-  repeated TrafficRange traffic_range_list = 8; // 流量区间，一般等同于层所在域，sdk 支持控制层粒度的流量，范围(0,所在域的 bucket_size]
+  repeated TrafficRange traffic_range_list = 8; // 流量区间，一般等同于层所在域，sdk 支持控制层粒度的流量，范围(0,所在域的 bucket_size] TODO 不需要，流量由域控制
   int64 bucket_size = 10; // 层桶数，100/1000/10000/100000
 }
 
@@ -269,6 +269,7 @@ message Condition {
   string experiment_key = 6; // 绑定的实验 key，没有绑定则为空
   int64 bucket_size = 7; // 桶大小，默认 100
   BucketInfo bucket_info = 8; // 条件的桶信息不独立下发，一般是区间形式
+  UnitIDType unit_id_type = 9; // // 冗余字段，账号 ID 体系
   IssueInfo issue_info = 10; // 条件下发信息
 }
 
