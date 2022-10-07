@@ -271,6 +271,7 @@ message Condition {
   BucketInfo bucket_info = 8; // 条件的桶信息不独立下发，一般是区间形式
   UnitIDType unit_id_type = 9; // // 冗余字段，账号 ID 体系
   IssueInfo issue_info = 10; // 条件下发信息
+  string config_key = 11; // 分支条件所属配置的 key
 }
 
 // 远程配置值的类型
