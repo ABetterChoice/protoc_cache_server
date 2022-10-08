@@ -1093,13 +1093,13 @@ type Experiment struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	HashMethod   HashMethod      `protobuf:"varint,1,opt,name=hash_method,json=hashMethod,proto3,enum=opensource.tab.cache_server.HashMethod" json:"hash_method,omitempty"`                                                       // hash 方法
-	HashSeed     int64           `protobuf:"varint,2,opt,name=hash_seed,json=hashSeed,proto3" json:"hash_seed,omitempty"`                                                                                                         // 二次 hash 所用种子
-	Id           int64           `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`                                                                                                                                     // 实验 ID
-	Key          string          `protobuf:"bytes,4,opt,name=key,proto3" json:"key,omitempty"`                                                                                                                                    // 实验 key
-	BucketSize   int64           `protobuf:"varint,5,opt,name=bucket_size,json=bucketSize,proto3" json:"bucket_size,omitempty"`                                                                                                   // 实验桶数，100/1000/10000/100000
-	IssueType    IssueType       `protobuf:"varint,10,opt,name=issue_type,json=issueType,proto3,enum=opensource.tab.cache_server.IssueType" json:"issue_type,omitempty"`                                                          // 下发类型
-	GroupIdIndex map[int64]int64 `protobuf:"bytes,11,rep,name=group_id_index,json=groupIdIndex,proto3" json:"group_id_index,omitempty" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"` // 实验下的实验组索引
+	HashMethod   HashMethod     `protobuf:"varint,1,opt,name=hash_method,json=hashMethod,proto3,enum=opensource.tab.cache_server.HashMethod" json:"hash_method,omitempty"`                                                       // hash 方法
+	HashSeed     int64          `protobuf:"varint,2,opt,name=hash_seed,json=hashSeed,proto3" json:"hash_seed,omitempty"`                                                                                                         // 二次 hash 所用种子
+	Id           int64          `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`                                                                                                                                     // 实验 ID
+	Key          string         `protobuf:"bytes,4,opt,name=key,proto3" json:"key,omitempty"`                                                                                                                                    // 实验 key
+	BucketSize   int64          `protobuf:"varint,5,opt,name=bucket_size,json=bucketSize,proto3" json:"bucket_size,omitempty"`                                                                                                   // 实验桶数，100/1000/10000/100000
+	IssueType    IssueType      `protobuf:"varint,10,opt,name=issue_type,json=issueType,proto3,enum=opensource.tab.cache_server.IssueType" json:"issue_type,omitempty"`                                                          // 下发类型
+	GroupIdIndex map[int64]bool `protobuf:"bytes,11,rep,name=group_id_index,json=groupIdIndex,proto3" json:"group_id_index,omitempty" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"` // 实验下的实验组索引，key 为 groupID，value 恒为 true
 }
 
 func (x *Experiment) Reset() {
@@ -1176,7 +1176,7 @@ func (x *Experiment) GetIssueType() IssueType {
 	return IssueType_ISSUE_TYPE_UNKNOWN
 }
 
-func (x *Experiment) GetGroupIdIndex() map[int64]int64 {
+func (x *Experiment) GetGroupIdIndex() map[int64]bool {
 	if x != nil {
 		return x.GroupIdIndex
 	}
@@ -3086,7 +3086,7 @@ var file_tab_cache_server_proto_rawDesc = []byte{
 	0x1a, 0x3f, 0x0a, 0x11, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x49, 0x6e, 0x64, 0x65, 0x78,
 	0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01,
 	0x28, 0x03, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38,
 	0x01, 0x22, 0x9b, 0x01, 0x0a, 0x0d, 0x48, 0x6f, 0x6c, 0x64, 0x6f, 0x75, 0x74, 0x44, 0x6f, 0x6d,
 	0x61, 0x69, 0x6e, 0x12, 0x47, 0x0a, 0x08, 0x6d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2b, 0x2e, 0x6f, 0x70, 0x65, 0x6e, 0x73, 0x6f, 0x75, 0x72,
