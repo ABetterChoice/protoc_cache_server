@@ -69,7 +69,7 @@ message Domain {
 // 实验层
 message Layer {
   LayerMetadata metadata = 1;
-  repeated Group group_list = 10; // 层下的实验组列表
+  map<int64, Group> group_index = 10; // 层下的实验组索引
   map<int64, Experiment> experiment_index = 11; // 层下实验列表索引,key为实验ID，value为实验
 }
 
