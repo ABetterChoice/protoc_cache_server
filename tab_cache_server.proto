@@ -315,6 +315,7 @@ message MetricsMetadata {
   map<string, string> expanded_data = 1; // 拓展信息，会透传这部分信息到具体的监控上报插件，方便支持每个插件的不同特性
   string name = 2; // 可以是曝光表名，也可以是指标名，由具体上报插件去定义他的用途
   string id = 3; // 唯一标识，由具体上报插件去定义他的用途
+  string token = 4; // token 由具体上报插件去定义他的用途
 }
 
 // 全量缓存数据
