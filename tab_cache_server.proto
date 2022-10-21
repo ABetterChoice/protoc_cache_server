@@ -298,6 +298,7 @@ message ControlData {
   MetricsConfig default_feature_flag_metrics_config = 8; // 默认开关监控上报相关配置
 
   MetricsConfig event_metrics_config = 9; // 事件监控上报相关配置
+  map<string, MetricsInitConfig> metrics_init_config_index = 10; // 初始化监控上报所需参数，key 为监控上报插件名
 }
 
 // 指标监控上报配置信息
@@ -309,7 +310,6 @@ message MetricsConfig {
   uint32 sampling_interval = 5; // 上报采样间隔，如果是 3，说明只采样 1/3 的事件，如果是 1，则全量上报
   uint32 err_sampling_interval = 6; // 发生错误的情况下 上报采样间隔，如果是 3，说明只采样 1/3 的事件，如果是 1，则全量上报，一般来说错误情况，上报间隔会比正常情况下的上报间隔小
   MetricsMetadata metadata = 10; // 插件的通用元数据，上报时，会将这部分信息透传给具体的插件
-  MetricsInitConfig metrics_init_config = 11; // 初始化监控上报所需参数
 }
 
 // 初始化监控上报所需参数
