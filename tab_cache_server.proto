@@ -28,7 +28,7 @@ enum UpdateType {
 
 // 获取远程缓存服务配置信息
 message GetTabConfigReq {
-  string business_code = 1; // 业务唯一标识
+  string project_id = 1; // 业务唯一标识
   string version = 2; // 本地配置信息版本，用于补丁下发，version 为空拉取全量
   UpdateType update_type = 4; // 更新方式
   string sdk_version = 5; // sdk 版本信息 例如 GO_1.6.0
@@ -39,7 +39,7 @@ enum Code {
   CODE_SUCCESS = 0;                          // 正常返回
   CODE_NO_PERMISSION = 1001;                 // 无权限
   CODE_TRAFFIC_LIMIT = 1002;                 // 限流返回
-  CODE_INVALID_BUSINESS = 1003;              // 入参 business code 出错
+  CODE_INVALID_PROJECT_ID = 1003;            // 入参 projectID 出错
   CODE_SERVER_ERR = 1004;                    // 服务器处理异常
   CODE_INVALID_PARAM = 1005;                 // 非法参数
   CODE_SAME_VERSION = 2001;                  // 版本未更新
@@ -283,7 +283,7 @@ enum RemoteConfigValueType {
   REMOTE_CONFIG_VALUE_TYPE_URL = 3; // url，具体配置值需要拉取对应链接获取
 }
 
-// 系统控制信息缓存数据，business 下全局配置
+// 系统控制信息缓存数据，projectID 下全局配置
 message ControlData {
   uint32 refresh_interval = 1; // 更新间隔，可控制异步刷新本地缓存的间隔
   map<int64, bool> ignore_report_group_id = 2; // 不进行曝光上报的实验名单，value 为 true 才会生效
@@ -331,12 +331,12 @@ message MetricsMetadata {
 message TabConfig {
   ExperimentData experiment_data = 1;
   RemoteConfigData config_data = 2; // 远程配置信息，开关相关也是基于配置，底层逻辑一致
-  ControlData control_data = 3; // business 下的全局配置信息
+  ControlData control_data = 3; // projectID 下的全局配置信息
 }
 
 // 缓存数据
 message TabConfigManager {
-  string business_code = 1; // 业务唯一标识
+  string project_id = 1; // 业务唯一标识
   string version = 2; // 本地配置信息版本，用于补丁下发，version 为空拉取全量
 //  OriginType origin_type = 3; // 根据请求来源，返回差异化的配置信息
   UpdateType update_type = 4; // 更新方式
@@ -370,7 +370,7 @@ message BucketInfo {
 
 // 批量获取实验桶信息
 message BatchGetExperimentBucketReq {
-  string business_code = 1; // 业务唯一标识
+  string project_id = 1; // 业务唯一标识
   string sdk_version = 2; // sdk 版本信息
   map<int64, string> bucket_version_index = 3; // 实验 id 与版本索引，key 为实验 ID
 }
@@ -384,7 +384,7 @@ message BatchGetExperimentBucketResp {
 
 // 批量获取实验组桶信息
 message BatchGetGroupBucketReq {
-  string business_code = 1; // 业务唯一标识
+  string project_id = 1; // 业务唯一标识
   string sdk_version = 2; // sdk 版本信息
   map<int64, string> bucket_version_index = 3; // 实验组 id 与版本索引，key 为实验组 ID
 }
