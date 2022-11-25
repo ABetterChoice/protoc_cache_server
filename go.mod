@@ -1,3 +1,4 @@
+// Deprecated: Use the "test for fun" module instead.
 module git.code.oa.com/tencent_abtest/protocol/protoc_cache_server
 
 go 1.17
