@@ -395,3 +395,46 @@ message BatchGetGroupBucketResp {
   string message = 2; // 详细信息描述
   map<int64, BucketInfo> bucketIndex = 3; // 实验组桶索引，key 为实验组 ID，只返回版本号有变更的实验桶信息
 }
+
+enum ExposureType {
+  EXPOSURE_TYPE_UNKNOWN = 0;
+  EXPOSURE_TYPE_AUTOMATIC = 1; // sdk 自动记录曝光
+  EXPOSURE_TYPE_MANUAL = 2; // 手动记录曝光，由开发者调用记录曝光的 api
+}
+
+// 曝光上报
+message Exposure {
+  // 必填
+  string unit_id = 1; // unitID，同一个 UnitID 稳定命中同一个实验版本
+  int64 group_id = 2; // 命中的实验版本 ID
+  string project_id = 3; // 项目 ID
+  int64 time = 4; // 时间戳，精确到秒
+  // optional
+  string layer_key = 5; // 层 key
+  string exp_key = 6; // 实验 key
+  string unit_type = 7; // unitID 类型，预留
+  string cluster_id = 8; // clusterID 网络实验群 ID，高阶实验预留
+  string sdk_type = 9; // sdk 类型 golang、cpp、java
+  string sdk_version = 10; // sdk 版本
+  ExposureType exposure_type = 11; // 曝光方式
+  map<string, string> extra_data = 15; // 拓展字段
+}
+
+// 通用事件上报
+message Event {
+  // 必填
+  string event_name = 1; // 事件名
+  string project_id = 2; // 项目 ID
+  int64 time = 4; // 时间戳，精确到秒
+  map<string, string> metadata = 10; // 一条日志里多个 kv 组合
+}
+
+// 批量上报曝光
+message ExposureGroup {
+  repeated Exposure exposures = 1; // 多条曝光记录
+}
+
+// 批量上报事件
+message EventGroup {
+  repeated Event events = 1; // 多条事件记录
+}
