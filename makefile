@@ -4,7 +4,7 @@ all: .build
 
 .build: .format
 	go mod tidy
-	protoc --proto_path=$GOPATH/src:${GOPATH}/src/git.code.oa.com/trpcprotocol:. --trpc2grpc_out=require_unimplemented_servers=false:. --go_out=. tab_cache_server.proto
+	protoc --proto_path=$GOPATH/src:${GOPATH}/src/git.code.oa.com/trpcprotocol:. --trpc2grpc_out=require_unimplemented_servers=false:. --go_out=. cache_server.proto
 	mv -f git.code.oa.com/tencent_abtest/protocol/protoc_cache_server/* ./
 	rm -rf git.code.oa.com
 

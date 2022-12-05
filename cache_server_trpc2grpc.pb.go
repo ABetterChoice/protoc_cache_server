@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.14.0
-// source: tab_cache_server.proto
+// source: cache_server.proto
 
 package protoc_cache_server
 
@@ -183,5 +183,5 @@ var APIServer_ServiceDescV2 = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "tab_cache_server.proto",
+	Metadata: "cache_server.proto",
 }
