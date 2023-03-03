@@ -232,6 +232,7 @@ message LayerMetadata {
   UnitIDType unit_id_type = 7; // 分流使用的 ID 类型，用于分流ID（一般是账号体系）灰度切换使用
   repeated TrafficRange traffic_range_list = 8; // 流量区间，一般等同于层所在域，sdk 支持控制层粒度的流量，范围(0,所在域的 bucket_size] TODO 不需要，流量由域控制
   int64 bucket_size = 10; // 层桶数，100/1000/10000/100000
+  repeated string holdout_layer_keys = 11; // 挂载的 holdout 层，从左往右判定，web 保证不会存在环 层A holdout 层B，..， 层B holdout 层A
 }
 
 // 流量区间 范围 hashValue 在 (0, bucket_size] 区间内，命中 [left,right] 闭区间就算命中
@@ -259,8 +260,9 @@ message RemoteConfig {
   string version = 3; // 版本号，远程配置每次改动都会生产一个版本号
   repeated int64 scene_id_list = 4; //  绑定的场景 ID
   RemoteConfigValueType type = 5; // 远程配置值的类型
-  map<string, bytes> override_list = 10; // 白名单 set，key 为 unitID，value 为具体命中的配置值
   repeated Condition condition_list = 6; // 条件分支，从上往下
+  map<string, bytes> override_list = 10; // 白名单 set，key 为 unitID，value 为具体命中的配置值
+  repeated string holdout_layer_keys = 11; // 挂载的 holdout 层，从左往右判定，web 保证不会存在环 层A holdout 层B，..， 层B holdout 层A
 }
 
 message Condition {
