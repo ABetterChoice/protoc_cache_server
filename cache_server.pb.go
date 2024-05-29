@@ -7,11 +7,12 @@
 package protoc_cache_server
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -911,7 +912,7 @@ func (x *GetTabConfigResp) GetTabConfigManager() *TabConfigManager {
 	return nil
 }
 
-//白名单列表中 - 每一层映射的实验ID
+// 白名单列表中 - 每一层映射的实验ID
 type LayerToGroupID struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

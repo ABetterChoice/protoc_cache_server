@@ -13,5 +13,4 @@ all: .build
 	gofmt -w .
 	goimports -w .
 	golint ./...
-	go-xray -d .
-	gonote .
+	gonote ./...

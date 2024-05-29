@@ -245,7 +245,13 @@ message TrafficRange {
 message ExperimentData {
   int64  default_group_id = 1; // 实验不命中默认的ID eg -1，既不命中实验也不命中层默认实验等，统一返回改 group ID
   map<string, LayerToGroupID> override_list = 2; // 白名单 key=unitID value=<layer code, group id> 白名单信息
+
   Domain global_domain = 3; // 实验层域结构
+  HoldoutData holdout_data = 4; // holdout 信息
+}
+
+message HoldoutData {
+  map<string, Layer> holdout_layer_index = 1; // holdout 层信息
 }
 
 // 远程配置缓存数据
