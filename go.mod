@@ -1,4 +1,4 @@
-module git.woa.com/tencent_abtest/protocol/protoc_cache_server
+module git.tencent.com/abetterchoice/protocol/protoc_cache_server
 
 go 1.17
 
