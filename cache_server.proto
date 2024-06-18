@@ -1,93 +1,93 @@
 syntax = "proto3";
 package opensource.tab.cache_server;
-// 注意：这里go_package指定的是协议生戨git上的地址，不要和上面的服务的git仓库地址一样
+// Note: go_package here specifies the address of the protocol repository on git, which should not be the same as the git repository address of the service above.
 option go_package="github.com/abetterchoice/protoc_cache_server";
 
 import "google/api/annotations.proto";
 
-// 定义服务接口
+// Defining the service interface
 service APIServer {
-  rpc GetTabConfig (GetTabConfigReq) returns (GetTabConfigResp); // 获取持续实验相关信息：实验以及远程配置[单个app维度]
-  rpc BatchGetExperimentBucket(BatchGetExperimentBucketReq) returns (BatchGetExperimentBucketResp); // 批量获取实验 bucket 信息，双 hash 类型层上实验才有桶信息
-  rpc BatchGetGroupBucket(BatchGetGroupBucketReq) returns (BatchGetGroupBucketResp); // 批量获取实验组 bucket 信息
-  // rpc ListTabConfig (ListTabConfigReq) returns (ListTabConfigResp); // // 获取持续实验相关信息：实验以及远程配置[多个app维度]
-//   rpc BatchGetExpBucket (BatchGetExpBucketsReq) returns (BatchGetExpBucketsResp);  // 批量获取实验的hash桶信息
+  rpc GetTabConfig (GetTabConfigReq) returns (GetTabConfigResp); // Get information about continuous experiments: experiments and remote configuration [single app dimension]
+  rpc BatchGetExperimentBucket(BatchGetExperimentBucketReq) returns (BatchGetExperimentBucketResp); // Get experiment bucket information in batches. Only experiments on the double hash type layer have bucket information.
+  rpc BatchGetGroupBucket(BatchGetGroupBucketReq) returns (BatchGetGroupBucketResp); // Get bucket information of experimental groups in batches
+  // rpc ListTabConfig (ListTabConfigReq) returns (ListTabConfigResp); // Get information about continuous experiments: experiments and remote configuration [multiple app dimensions]
+//   rpc BatchGetExpBucket (BatchGetExpBucketsReq) returns (BatchGetExpBucketsResp);  // Batch obtain the hash bucket information of the experiment
 }
 
-// 来源类型
+// Origin Type
 enum OriginType {
-  ORIGIN_TYPE_UNKNOWN = 0; // 未知
-  ORIGIN_TYPE_SERVER = 1; // 服务
-  ORIGIN_TYPE_MOBILE = 2; // 终端
+  ORIGIN_TYPE_UNKNOWN = 0; // unknow
+  ORIGIN_TYPE_SERVER = 1; // server
+  ORIGIN_TYPE_MOBILE = 2; // terminal
 }
 
-// 更新方式
+// Update Type
 enum UpdateType {
-  UPDATE_TYPE_UNKNOWN = 0; // 未知
-  UPDATE_TYPE_COMPLETE = 1; // 全量
-  UPDATE_YPE_DIFF = 2; // 增量补丁
+  UPDATE_TYPE_UNKNOWN = 0; // unknow
+  UPDATE_TYPE_COMPLETE = 1; // COMPLETE
+  UPDATE_YPE_DIFF = 2; // Incremental patches
 }
 
-// 获取远程缓存服务配置信息
+// Get remote cache service configuration information
 message GetTabConfigReq {
-  string project_id = 1; // 业务唯一标识
-  string version = 2; // 本地配置信息版本，用于补丁下发，version 为空拉取全量
-  UpdateType update_type = 4; // 更新方式
-  string sdk_version = 5; // sdk 版本信息 例如 GO_1.6.0
-  string region = 10; // 地区信息，可以根据不同地区下发不同的配置
+  string project_id = 1; // Business unique identifier
+  string version = 2; // Local configuration information version, used for patch delivery. If version is empty, the full version will be pulled.
+  UpdateType update_type = 4; // Update method
+  string sdk_version = 5; // SDK version information, for example GO_1.6.0
+  string region = 10; // Regional information, different configurations can be issued according to different regions
 }
 
 enum Code {
-  CODE_SUCCESS = 0;                          // 正常返回
-  CODE_NO_PERMISSION = 1001;                 // 无权限
-  CODE_TRAFFIC_LIMIT = 1002;                 // 限流返回
-  CODE_INVALID_PROJECT_ID = 1003;            // 入参 projectID 出错
-  CODE_SERVER_ERR = 1004;                    // 服务器处理异常
-  CODE_INVALID_PARAM = 1005;                 // 非法参数
-  CODE_SAME_VERSION = 2001;                  // 版本未更新
+  CODE_SUCCESS = 0;                          // success
+  CODE_NO_PERMISSION = 1001;                 // NO PERMISSION
+  CODE_TRAFFIC_LIMIT = 1002;                 // TRAFFIC LIMIT
+  CODE_INVALID_PROJECT_ID = 1003;            //  projectID error
+  CODE_SERVER_ERR = 1004;                    // SERVER ERROR
+  CODE_INVALID_PARAM = 1005;                 // INVALID PARAM
+  CODE_SAME_VERSION = 2001;                  // SAME VERSION
 }
 
-// 获取缓存数据结果
+// Get cached data results
 message GetTabConfigResp {
-  Code code = 1; // 错误码
-  string message = 2; // 详细信息描述
+  Code code = 1; // error code
+  string message = 2; // Detailed description
 
-  TabConfigManager tab_config_manager = 10; // 缓存数据
+  TabConfigManager tab_config_manager = 10; // Cached data
 }
 
-//白名单列表中 - 每一层映射的实验ID
+//Whitelist - Experiment IDs mapped at each layer
 message LayerToGroupID{
   // key=layer_key，value= group ID
   map<string,int64> layer_to_group_id = 1;
 }
 
-// 实验层域结构 // TODO 层域结构概念透出、封装、降门槛
+// Experimental layer domain structure // TODO The concept of layer domain structure is revealed, encapsulated, and the threshold is lowered
 message Domain {
-  DomainMetadata metadata = 1; // 元数据
-  repeated HoldoutDomain holdout_domain_list = 10; // 贯穿域列表 // TODO 本质是想部分人群走一个层就完事 命名
-  repeated MultiLayerDomain multi_layer_domain_list = 11; // 多层域列表
-  repeated Domain domain_list = 12; // 嵌套的子域结构
+  DomainMetadata metadata = 1; // metadata
+  repeated HoldoutDomain holdout_domain_list = 10; // Run through domain list // TODO The essence is to let some people go through one level and be done with it.
+  repeated MultiLayerDomain multi_layer_domain_list = 11; // Multi-layer domain list
+  repeated Domain domain_list = 12; // Nested subdomain structure
 }
 
-// 实验层
+// Experimental Layer
 message Layer {
   LayerMetadata metadata = 1;
-  map<int64, Group> group_index = 10; // 层下的实验组索引
-  map<int64, Experiment> experiment_index = 11; // 层下实验列表索引,key为实验ID，value为实验
+  map<int64, Group> group_index = 10; // Experiment group index under the layer
+  map<int64, Experiment> experiment_index = 11; // The index of the experiment list under the layer, the key is the experiment ID, and the value is the experiment
 }
 
-// 实验信息
+// Experimental information
 message Experiment {
-  HashMethod hash_method = 1; // hash 方法
-  int64 hash_seed = 2; // 二次 hash 所用种子
-  int64 id = 3; // 实验 ID
-  string key = 4; // 实验 key
-  int64 bucket_size = 5; // 实验桶数，100/1000/10000/100000
-  IssueType issue_type = 10; // 下发类型
-  map<int64, bool> group_id_index = 11; // 实验下的实验组索引，key 为 groupID，value 恒为 true
+  HashMethod hash_method = 1; // hash method
+  int64 hash_seed = 2; // The seed used for the second hash
+  int64 id = 3; // experiment ID
+  string key = 4; // experiment key
+  int64 bucket_size = 5; // Number of experimental barrels，100/1000/10000/100000
+  IssueType issue_type = 10; // Issue Type
+  map<int64, bool> group_id_index = 11; // The experimental group index under the experiment, the key is groupID, and the value is always true
 }
 
-// hash 方法
+// hash method
 enum HashMethod {
   HASH_METHOD_UNKNOWN = 0;
   HASH_METHOD_BKDR = 1; // bkdr hash
@@ -100,140 +100,138 @@ enum HashMethod {
 
 enum HashType {
   HASH_TYPE_UNKNOWN = 0;
-  HASH_TYPE_SINGLE = 1; // 单次 hash，进入层后做一次hash，直接判定命中的 group
-  HASH_TYPE_DOUBLE = 2; // 双 hash，进入层后做一次 hash，判定命中的实验，实验内再做一次 hash，判定命中的 group
+  HASH_TYPE_SINGLE = 1; // Single hash, do a hash once after entering the layer, and directly determine the hit group
+  HASH_TYPE_DOUBLE = 2; // Double hashing: do a hash once after entering the layer to determine the hit experiment, and do another hash within the experiment to determine the hit group
 }
 
-// holdout 域信息
+// holdout
 message HoldoutDomain {
   DomainMetadata metadata = 1;
-  repeated Layer layer_list = 10; // holdout 域下的层，理论上只有一个，sdk 协议支持多个
+  repeated Layer layer_list = 10; // holdout Theoretically, there is only one layer under the holdout domain, but the SDK protocol supports multiple
 }
 
-// 多层域
+// MultiLayerDomain
 message MultiLayerDomain {
   DomainMetadata metadata = 1;
-  repeated Layer layer_list = 10; // 多层域下的层列表
+  repeated Layer layer_list = 10; // layer_list
 }
 
-// 实验下的实验组信息【对照组 or 实验组】
+// Experimental group information under the experiment [control group or experimental group]
 message Group {
-  int64 id = 1; // 实验组 ID
-  string group_key = 2; // 实验组 key
-  int64 experiment_id = 3; // 所属实验 ID
-  string experiment_key = 4; // 所属实验 key
-  map<string, string> params = 5; // group 参数
-  bool is_default = 6; // 是否是默认实验
-  bool is_control = 7; // 是否是对照组
-  string layer_key = 8; // 冗余字段，存放所属层 key
-  IssueInfo issue_info = 9; // 下发信息
-  repeated int64 scene_id_list = 10; // 场景 ID 列表
-  UnitIDType unit_id_type = 11; // 冗余字段，账号 ID 体系
+  int64 id = 1; // Experimental group ID
+  string group_key = 2; // Experimental group key
+  int64 experiment_id = 3; // experiment ID
+  string experiment_key = 4; // experiment key
+  map<string, string> params = 5; // group param
+  bool is_default = 6; // is_default
+  bool is_control = 7; // is_control
+  string layer_key = 8; // Redundant field, storing the layer key
+  IssueInfo issue_info = 9; // Send information
+  repeated int64 scene_id_list = 10; // scene id list
+  UnitIDType unit_id_type = 11; // Redundant fields, account ID system
 }
 
-// 实验下发信息
+// Experimental information release
 message IssueInfo {
-  IssueType issue_type = 1; // 下发类型
-  repeated tagList tag_list_group = 2; // tagList 之间或关系，tagList 里面 与关系 表达式  (A && B && C ...) || (a && b && c ...) || ...
+  IssueType issue_type = 1; // issue type
+  repeated tagList tag_list_group = 2; // The or relationship between tagList, and the and relationship expression in tagList (A && B && C ...) || (a && b && c ...) || ...
 }
 
 message tagList {
-  repeated tag tag_list = 2; // 与关系
+  repeated tag tag_list = 2; //
 }
 
-// 标签
+// tag
 message tag {
-  string key = 1; // 标签 key，用户传入的标签 kv 中的 key，由此拿到用户标签值，跟当前配置标签值做对比
-  TagType tag_type = 2; // 字符串\数值\array\bool 等
-  Operator operator = 3; // 操作符 lte\gte etc
-  string value = 4; // 标签值，人群包类型标识人群包 key
-  int64 dmp_platform = 5; // 人群包判定系统 TODO 枚举
-  UnitIDType unit_id_type = 6; // unit id 类型
+  string key = 1; // tag key，The key in the label kv passed by the user is used to obtain the user label value and compare it with the current configuration label value
+  TagType tag_type = 2; // 字string\value\array\bool etc.
+  Operator operator = 3; // operator lte\gte etc
+  string value = 4; // Tag value, crowd package type identifier crowd package key
+  int64 dmp_platform = 5; // Crowd pack determination system TODO enum
+  UnitIDType unit_id_type = 6; // unit id type
 }
 
-// 操作符
+// operator
 enum Operator {
   OPERATOR_UNKNOWN = 0;
-  OPERATOR_EQ = 1; // 相等
-  OPERATOR_LT = 2; // 小于
-  OPERATOR_LTE = 3; // 小于等于
-  OPERATOR_GT = 4; // 大于
-  OPERATOR_GTE = 5; // 大于等于
-  OPERATOR_NE = 6; // 不等于
-  OPERATOR_REGULAR = 7; // 正则
-  OPERATOR_IN = 8; // 存在数组内
-  OPERATOR_NOT_IN = 9; // 不存在数组内
-  OPERATOR_SUPER_SET = 10; // 超集
-  OPERATOR_SUB_SET = 11; // 子集
-  OPERATOR_TRUE = 12; // true bool，也可以是人群包命中
-  OPERATOR_FALSE = 13; // false bool，也可以是人群包不命中，取非
-  OPERATOR_LORO = 14; // 左开右开 虽然可以通过 Left < X && X < Right 组合表达，但基于这是个常见表达式，故特别提供区间计算
-  OPERATOR_LORC = 15; // 左开右闭
-  OPERATOR_LCRO = 16; // 左闭右开
-  OPERATOR_LCRC = 17; // 左闭右闭
-  OPERATOR_EMPTY = 18; // 空，用户传入的标签值为空
-  OPERATOR_NOT_EMPTY = 19; // 非空，用户传入的标签值非空
+  OPERATOR_EQ = 1; // equal
+  OPERATOR_LT = 2; // Less than
+  OPERATOR_LTE = 3; // Less than or equal to
+  OPERATOR_GT = 4; // more than
+  OPERATOR_GTE = 5; // greater or equal to
+  OPERATOR_NE = 6; // not equal to
+  OPERATOR_REGULAR = 7; // Regular
+  OPERATOR_IN = 8; // Exists in array
+  OPERATOR_NOT_IN = 9; // not exist in the array
+  OPERATOR_SUPER_SET = 10; // Superset
+  OPERATOR_SUB_SET = 11; // Subset
+  OPERATOR_TRUE = 12; // true bool，It can also be a crowd package hit
+  OPERATOR_FALSE = 13; // false bool，It can also be that the crowd package does not hit, take non
+  OPERATOR_LORO = 14; // Although it can be expressed by Left < X && X < Right, since this is a common expression, we provide interval calculation.
+  OPERATOR_LORC = 15; // Left open right closed
+  OPERATOR_LCRO = 16; // Left closed, right open
+  OPERATOR_LCRC = 17; // Left closed right closed
+  OPERATOR_EMPTY = 18; // Empty: the tag value passed in by the user is empty
+  OPERATOR_NOT_EMPTY = 19; // Not empty. The tag value passed in by the user is not empty.
 }
 
 enum TagType {
   TAG_TYPE_UNKNOWN = 0;
-  TAG_TYPE_STRING = 1; // 字符串类型
-  TAG_TYPE_NUMBER = 2; // 数值类型
-  TAG_TYPE_SET = 3; // 集合类型，超集\子集\等于
-  TAG_TYPE_BOOLEAN = 4; // bool 类型
-  TAG_TYPE_DMP = 5; // 人群包类型，需要 rpc 请求用户画像信息
-  TAG_TYPE_VERSION = 6; // 版本号信息
-  TAG_TYPE_EMPTY = 7; // 空判断，用户传入的标签值为空与否
+  TAG_TYPE_STRING = 1; // string
+  TAG_TYPE_NUMBER = 2; // number
+  TAG_TYPE_SET = 3; // set
+  TAG_TYPE_BOOLEAN = 4; // bool
+  TAG_TYPE_DMP = 5;
+  TAG_TYPE_VERSION = 6;
+  TAG_TYPE_EMPTY = 7;
 }
 
-// 下发类型
 enum IssueType {
   ISSUE_TYPE_UNKNOWN = 0;
-  ISSUE_TYPE_PERCENTAGE = 1; // 按比例下发
-  ISSUE_TYPE_TAG = 2; // 按标签下发
-  ISSUE_TYPE_CITY_TAG = 3; // 按城市标签下发【每个实验组的标签都不一样】两个及以上实验组拥有相同标签：AaBb，建议同层设置两个互斥实验
+  ISSUE_TYPE_PERCENTAGE = 1;
+  ISSUE_TYPE_TAG = 2;
+  ISSUE_TYPE_CITY_TAG = 3;
 }
 
-// 域类型
+
 enum DomainType {
   DOMAIN_TYPE_UNKNOWN = 0;
-  DOMAIN_TYPE_DOMAIN = 1; // 层域
-  DOMAIN_TYPE_HOLDOUT = 2; // holdout 贯穿域，整体空白对照
-  DOMAIN_TYPE_MULTILAYER = 3; // 多层域，层与层正交，流量复用
+  DOMAIN_TYPE_DOMAIN = 1;
+  DOMAIN_TYPE_HOLDOUT = 2;
+  DOMAIN_TYPE_MULTILAYER = 3;
 }
 
-// 分流 ID 类型
+
 enum UnitIDType {
   UNIT_ID_TYPE_UNKNOWN = 0;
-  UNIT_ID_TYPE_DEFAULT = 1; // hash 使用默认的 unitID
-  UNIT_ID_TYPE_NEW_ID = 2;  // hash 使用 newID，没有 newID 使用 unitID
+  UNIT_ID_TYPE_DEFAULT = 1;
+  UNIT_ID_TYPE_NEW_ID = 2;
 }
 
-// 域元数据
+
 message DomainMetadata {
   string key = 1; // key
-  DomainType domain_type = 2; // 域类型
-  HashMethod hash_method = 3; // hash 方法
-  int64 hash_seed = 4; // hash 种子 选大质数
-  // UnitIDType decisionID 专门用于分流 + reportID N decisionID -> 1 unitID TODO
-  UnitIDType unit_id_type = 5; // 分流使用的 ID 类型，用于分流ID（一般是账号体系）灰度切换使用 TODO
-  int64 bucket_size = 6; // 层桶数，100/1000/10000/100000，域的流量分割粒度
-  repeated TrafficRange traffic_range_list = 10; // 流量区间
+  DomainType domain_type = 2;
+  HashMethod hash_method = 3; // hash
+  int64 hash_seed = 4; // hash
+  // UnitIDType decisionID Special for diversion + reportID N decisionID -> 1 unitID TODO
+  UnitIDType unit_id_type = 5; // The ID type used for diversion, used for grayscale switching of diversion ID (usually account system) TODO
+  int64 bucket_size = 6; // Number of layer buckets, 100/1000/10000/100000, traffic segmentation granularity of the domain
+  repeated TrafficRange traffic_range_list = 10; // traffic range
 }
 
-// 层元数据
 message LayerMetadata {
   string key = 1;
-  Group default_group = 2; // 层默认实验组
-  HashType hash_type = 3; // hash 类型
-  HashMethod hash_method = 4; // hash 方法
-  int64 hash_seed = 5; // hash 种子
-  repeated int64 scene_id_list = 6; // 场景列表，相当于染色，逻辑隔离
-  UnitIDType unit_id_type = 7; // 分流使用的 ID 类型，用于分流ID（一般是账号体系）灰度切换使用
-  repeated TrafficRange traffic_range_list = 8; // 流量区间，一般等同于层所在域，sdk 支持控制层粒度的流量，范围(0,所在域的 bucket_size] TODO 不需要，流量由域控制
-  int64 bucket_size = 10; // 层桶数，100/1000/10000/100000
-  repeated string holdout_layer_keys = 11; // 挂载的 holdout 层，从左往右判定，web 保证不会存在环 层A holdout 层B，..， 层B holdout 层A
-  LayerType layer_type = 12; // 层类型
+  Group default_group = 2;
+  HashType hash_type = 3; // hash type
+  HashMethod hash_method = 4; // hash
+  int64 hash_seed = 5; // hash seed
+  repeated int64 scene_id_list = 6;
+  UnitIDType unit_id_type = 7;
+  repeated TrafficRange traffic_range_list = 8; // TODO No, traffic is controlled by the domain
+  int64 bucket_size = 10; // bucket size，100/1000/10000/100000
+  repeated string holdout_layer_keys = 11; // Mounted holdout layers, judging from left to right, web guarantees that there will be no loops Layer A holdout layer B, .., layer B holdout layer A
+  LayerType layer_type = 12; // layer type
 }
 
 enum LayerType {
@@ -243,173 +241,171 @@ enum LayerType {
     LAYER_ORIGIN_HOLDOUT = 3;
 }
 
-// 流量区间 范围 hashValue 在 (0, bucket_size] 区间内，命中 [left,right] 闭区间就算命中
+// Traffic interval range hashValue is in the interval (0, bucket_size], and hitting the closed interval [left,right] is considered a hit
 message TrafficRange {
   int64 left = 1;
   int64 right = 2;
 }
 
-// 实验缓存数据
 message ExperimentData {
-  int64  default_group_id = 1; // 实验不命中默认的ID eg -1，既不命中实验也不命中层默认实验等，统一返回改 group ID
-  map<string, LayerToGroupID> override_list = 2; // 白名单 key=unitID value=<layer code, group id> 白名单信息
+  int64  default_group_id = 1;
+  map<string, LayerToGroupID> override_list = 2;
 
-  Domain global_domain = 3; // 实验层域结构
-  HoldoutData holdout_data = 4; // holdout 信息
+  Domain global_domain = 3;
+  HoldoutData holdout_data = 4;
 }
 
 message HoldoutData {
-  map<string, Layer> holdout_layer_index = 1; // holdout 层信息
+  map<string, Layer> holdout_layer_index = 1;
 }
 
-// 远程配置缓存数据
+
 message RemoteConfigData {
-  map<string, RemoteConfig> remote_config_index = 1; // 远程配置索引，key 为配置 key
+  map<string, RemoteConfig> remote_config_index = 1;
 }
 
-// 远程配置
+
 message RemoteConfig {
-  string key = 1; // 配置 key
-  bytes default_value = 2; // 远程配置默认值
-  string version = 3; // 版本号，远程配置每次改动都会生产一个版本号
-  repeated int64 scene_id_list = 4; //  绑定的场景 ID
-  RemoteConfigValueType type = 5; // 远程配置值的类型
-  repeated Condition condition_list = 6; // 条件分支，从上往下
-  map<string, bytes> override_list = 10; // 白名单 set，key 为 unitID，value 为具体命中的配置值
-  repeated string holdout_layer_keys = 11; // 挂载的 holdout 层，从左往右判定，web 保证不会存在环 层A holdout 层B，..， 层B holdout 层A
+  string key = 1;
+  bytes default_value = 2;
+  string version = 3;
+  repeated int64 scene_id_list = 4;
+  RemoteConfigValueType type = 5;
+  repeated Condition condition_list = 6;
+  map<string, bytes> override_list = 10;
+  repeated string holdout_layer_keys = 11;
 }
 
 message Condition {
-  int64 id = 1; // 条件 ID
-  string key = 2; // 条件 key
-  bytes value = 3; // 条件值
-  HashMethod hash_method = 4; // hash 算法
-  int64 hash_seed = 5; // hash 种子
-  string experiment_key = 6; // 绑定的实验 key，没有绑定则为空
-  int64 bucket_size = 7; // 桶大小，默认 100
-  BucketInfo bucket_info = 8; // 条件的桶信息不独立下发，一般是区间形式
-  UnitIDType unit_id_type = 9; // // 冗余字段，账号 ID 体系
-  IssueInfo issue_info = 10; // 条件下发信息
-  string config_key = 11; // 分支条件所属配置的 key
+  int64 id = 1;
+  string key = 2;
+  bytes value = 3;
+  HashMethod hash_method = 4;
+  int64 hash_seed = 5;
+  string experiment_key = 6;
+  int64 bucket_size = 7;
+  BucketInfo bucket_info = 8;
+  UnitIDType unit_id_type = 9;
+  IssueInfo issue_info = 10;
+  string config_key = 11;
 }
 
-// 远程配置值的类型
+
 enum RemoteConfigValueType {
   REMOTE_CONFIG_VALUE_TYPE_UNKNOWN = 0;
-  REMOTE_CONFIG_VALUE_TYPE_BOOL = 1; // 布尔类型，开关
-  REMOTE_CONFIG_VALUE_TYPE_BYTES = 2; // 二进制类型，通用的配置值
-  REMOTE_CONFIG_VALUE_TYPE_URL = 3; // url，具体配置值需要拉取对应链接获取
+  REMOTE_CONFIG_VALUE_TYPE_BOOL = 1;
+  REMOTE_CONFIG_VALUE_TYPE_BYTES = 2;
+  REMOTE_CONFIG_VALUE_TYPE_URL = 3;
 }
 
-// 系统控制信息缓存数据，projectID 下全局配置
+
 message ControlData {
-  uint32 refresh_interval = 1; // 更新间隔，可控制异步刷新本地缓存的间隔
-  map<int64, bool> ignore_report_group_id = 2; // 不进行曝光上报的实验名单，value 为 true 才会生效
+  uint32 refresh_interval = 1;
+  map<int64, bool> ignore_report_group_id = 2;
 
-  map<int64, MetricsConfig> experiment_metrics_config = 3; // 实验监控上报相关配置，key 为场景 ID
-  MetricsConfig default_experiment_metrics_config = 4; // 默认监控上报相关配置
+  map<int64, MetricsConfig> experiment_metrics_config = 3;
+  MetricsConfig default_experiment_metrics_config = 4;
 
-  map<int64, MetricsConfig> remote_config_metrics_config = 5; // 远程配置监控上报相关配置，key 为场景 ID
-  MetricsConfig default_remote_config_metrics_config = 6; // 远程配置监控上报相关配置
+  map<int64, MetricsConfig> remote_config_metrics_config = 5;
+  MetricsConfig default_remote_config_metrics_config = 6;
 
-  map<int64, MetricsConfig> feature_flag_metrics_config = 7; // 开关监控上报相关配置
-  MetricsConfig default_feature_flag_metrics_config = 8; // 默认开关监控上报相关配置
+  map<int64, MetricsConfig> feature_flag_metrics_config = 7;
+  MetricsConfig default_feature_flag_metrics_config = 8;
 
-  MetricsConfig event_metrics_config = 9; // 事件监控上报相关配置
-  map<string, MetricsInitConfig> metrics_init_config_index = 10; // 初始化监控上报所需参数，key 为监控上报插件名
+  MetricsConfig event_metrics_config = 9;
+  map<string, MetricsInitConfig> metrics_init_config_index = 10;
 }
 
-// 指标监控上报配置信息
+
 message MetricsConfig {
-  bool is_automatic = 1; // 是否自动记录曝光，如果 sdk 没有注册任何上报组件插件，则不会上报
-  bool is_enable = 2; // 是否启用，默认为 true，如果 false，则不需要上报
-  string plugin_name = 3; // 监控上报组件插件名, 例如 atta、kafka、tabServer
-  int64 scene_id = 4; // 场景 ID
-  uint32 sampling_interval = 5; // 上报采样间隔，如果是 3，说明只采样 1/3 的事件，如果是 1，则全量上报
-  uint32 err_sampling_interval = 6; // 发生错误的情况下 上报采样间隔，如果是 3，说明只采样 1/3 的事件，如果是 1，则全量上报，一般来说错误情况，上报间隔会比正常情况下的上报间隔小
-  MetricsMetadata metadata = 10; // 插件的通用元数据，上报时，会将这部分信息透传给具体的插件
+  bool is_automatic = 1;
+  bool is_enable = 2;
+  string plugin_name = 3;
+  int64 scene_id = 4;
+  uint32 sampling_interval = 5;
+  uint32 err_sampling_interval = 6;
+  MetricsMetadata metadata = 10;
 }
 
-// 初始化监控上报所需参数
+
 message MetricsInitConfig {
-  string Region = 1; // 地区，不同地区可能使用不同的上报 addr，预留，后续可根据 region 动态拉取 addr 信息
-  string addr = 2; // 上报地址，IP:端口、或者域名，各个上报插件可自行定义
-  map<string, string> kv = 3; // 拓展信息
+  string Region = 1;
+  string addr = 2;
+  map<string, string> kv = 3;
 }
 
-// 插件的通用元数据，上报时，会将这部分信息透传给具体的插件
 message MetricsMetadata {
-  map<string, string> expanded_data = 1; // 拓展信息，会透传这部分信息到具体的监控上报插件，方便支持每个插件的不同特性
-  string name = 2; // 可以是曝光表名，也可以是指标名，由具体上报插件去定义他的用途
-  string id = 3; // 唯一标识，由具体上报插件去定义他的用途
-  string token = 4; // token 由具体上报插件去定义他的用途
+  map<string, string> expanded_data = 1;
+  string name = 2;
+  string id = 3;
+  string token = 4;
 }
 
-// 全量缓存数据
+
 message TabConfig {
   ExperimentData experiment_data = 1;
-  RemoteConfigData config_data = 2; // 远程配置信息，开关相关也是基于配置，底层逻辑一致
-  ControlData control_data = 3; // projectID 下的全局配置信息
+  RemoteConfigData config_data = 2;
+  ControlData control_data = 3;
 }
 
-// 缓存数据
+
 message TabConfigManager {
-  string project_id = 1; // 业务唯一标识
-  string version = 2; // 本地配置信息版本，用于补丁下发，version 为空拉取全量
-//  OriginType origin_type = 3; // 根据请求来源，返回差异化的配置信息
-  UpdateType update_type = 4; // 更新方式
+  string project_id = 1;
+  string version = 2;
+//  OriginType origin_type = 3;
+  UpdateType update_type = 4;
 
-  TabConfig tab_config = 10; // 全量缓存数据
-  bytes tab_config_patch = 11; // 增量更新模式下，新老版本的补丁包
+  TabConfig tab_config = 10;
+  bytes tab_config_patch = 11;
 }
 
-// 桶存放形式，bitmap or range
+// bitmap or range
 enum BucketType {
-  BUCKET_TYPE_UNKNOWN = 0; // 未知
+  BUCKET_TYPE_UNKNOWN = 0;
   BUCKET_TYPE_BITMAP = 1; // bitmap
-  BUCKET_TYPE_RANGE = 2; // 区间
+  BUCKET_TYPE_RANGE = 2;
 }
 
-// 桶更新方式，如果是删除，则清空本地该桶信息，避免频繁上下线实验组，导致本地缓存空间膨胀
+
 enum ModifyType {
-  MODIFY_UNKNOWN = 0; // 未知
-  MODIFY_UPDATE = 1;// 更新
-  MODIFY_DELETE = 2; // 删除
+  MODIFY_UNKNOWN = 0;
+  MODIFY_UPDATE = 1;
+  MODIFY_DELETE = 2;
 }
 
-// 桶信息
+
 message BucketInfo {
-  BucketType bucket_type = 1; // 类型，同时支持区间跟 bitmap
-  TrafficRange traffic_range = 2; // 区间
-  bytes bitmap = 3; // roaring bitmap 序列化 body
-  string version = 4; // 版本号
-  ModifyType modify_type = 5; // 桶更新类型
+  BucketType bucket_type = 1;
+  TrafficRange traffic_range = 2;
+  bytes bitmap = 3;
+  string version = 4;
+  ModifyType modify_type = 5;
 }
 
-// 批量获取实验桶信息
+
 message BatchGetExperimentBucketReq {
-  string project_id = 1; // 业务唯一标识
-  string sdk_version = 2; // sdk 版本信息
-  map<int64, string> bucket_version_index = 3; // 实验 id 与版本索引，key 为实验 ID
+  string project_id = 1;
+  string sdk_version = 2;
+  map<int64, string> bucket_version_index = 3;
 }
 
-// 批量获取实验桶信息
+// Get experimental bucket information in batches
 message BatchGetExperimentBucketResp {
-  Code code = 1; // 错误码
-  string message = 2; // 详细信息描述
-  map<int64, BucketInfo> bucketIndex = 3; // 实验桶索引，key 为实验 ID，只返回版本号有变更的实验桶信息
+  Code code = 1; // error code
+  string message = 2; // Detailed description
+  map<int64, BucketInfo> bucketIndex = 3; // Experiment bucket index, key is the experiment ID, only returns the experiment bucket information with changed version number
 }
 
-// 批量获取实验组桶信息
+// Get experimental group bucket information in batches
 message BatchGetGroupBucketReq {
-  string project_id = 1; // 业务唯一标识
-  string sdk_version = 2; // sdk 版本信息
-  map<int64, string> bucket_version_index = 3; // 实验组 id 与版本索引，key 为实验组 ID
+  string project_id = 1; // project id
+  string sdk_version = 2; // sdk version
+  map<int64, string> bucket_version_index = 3; // Experiment group ID and version index, key is the experiment group ID
 }
 
-// 批量获取实验组桶信息
+// Get experimental group bucket information in batches
 message BatchGetGroupBucketResp {
-  Code code = 1; // 错误码
-  string message = 2; // 详细信息描述
-  map<int64, BucketInfo> bucketIndex = 3; // 实验组桶索引，key 为实验组 ID，只返回版本号有变更的实验桶信息
+  Code code = 1; // error code
+  string message = 2; // Detailed description
+  map<int64, BucketInfo> bucketIndex = 3; // Experiment group bucket index, key is the experiment group ID, only returns the experiment bucket information with changed version number
 }
