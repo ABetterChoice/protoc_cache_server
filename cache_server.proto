@@ -141,6 +141,12 @@ message tagList {
   repeated tag tag_list = 2; //
 }
 
+enum TagOrigin {
+  TAG_ORIGIN_UNKNOWN = 0; // unknown
+  TAG_ORIGIN_TAG = 1; // 普通标签
+  TAG_ORIGIN_DMP = 2; // 人群包
+}
+
 // tag
 message tag {
   string key = 1; // tag key，The key in the label kv passed by the user is used to obtain the user label value and compare it with the current configuration label value
@@ -149,6 +155,7 @@ message tag {
   string value = 4; // Tag value, crowd package type identifier crowd package key
   int64 dmp_platform = 5; // Crowd pack determination system TODO enum
   UnitIDType unit_id_type = 6; // unit id type
+  TagOrigin tag_origin = 7; // 标签来源
 }
 
 // operator
