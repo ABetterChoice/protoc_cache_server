@@ -1,6 +1,6 @@
 module github.com/abetterchoice/protoc_cache_server
 
-go 1.17
+go 1.18
 
 require (
 	google.golang.org/genproto v0.0.0-20221207170731-23e4bf6bdc37
