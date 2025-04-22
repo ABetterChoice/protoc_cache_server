@@ -180,6 +180,8 @@ enum Operator {
   OPERATOR_LCRC = 17; // Left closed right closed
   OPERATOR_EMPTY = 18; // Empty: the tag value passed in by the user is empty
   OPERATOR_NOT_EMPTY = 19; // Not empty. The tag value passed in by the user is not empty.
+  OPERATOR_LIKE = 20; // Like: The tag value passed in by the user contains the specified substring.
+  OPERATOR_NOT_LIKE = 21; // Not Like: The tag value passed in by the user does not contain the specified substring.
 }
 
 enum TagType {
