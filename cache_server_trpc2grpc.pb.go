@@ -4,7 +4,7 @@
 // - protoc             v5.29.1
 // source: cache_server.proto
 
-package protoc_cache_server1
+package protoc_cache_server
 
 import (
 	context "context"
