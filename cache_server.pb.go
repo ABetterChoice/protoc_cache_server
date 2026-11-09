@@ -496,28 +496,27 @@ func (TagOrigin) EnumDescriptor() ([]byte, []int) {
 type Operator int32
 
 const (
-	Operator_OPERATOR_UNKNOWN   Operator = 0
-	Operator_OPERATOR_EQ        Operator = 1  // equal
-	Operator_OPERATOR_LT        Operator = 2  // Less than
-	Operator_OPERATOR_LTE       Operator = 3  // Less than or equal to
-	Operator_OPERATOR_GT        Operator = 4  // more than
-	Operator_OPERATOR_GTE       Operator = 5  // greater or equal to
-	Operator_OPERATOR_NE        Operator = 6  // not equal to
-	Operator_OPERATOR_REGULAR   Operator = 7  // Regular
-	Operator_OPERATOR_IN        Operator = 8  // Exists in array
-	Operator_OPERATOR_NOT_IN    Operator = 9  // not exist in the array
-	Operator_OPERATOR_SUPER_SET Operator = 10 // Superset
-	Operator_OPERATOR_SUB_SET   Operator = 11 // Subset
-	Operator_OPERATOR_TRUE      Operator = 12 // true bool，It can also be a crowd package hit
-	Operator_OPERATOR_FALSE     Operator = 13 // false bool，It can also be that the crowd package does not hit, take non
-	Operator_OPERATOR_LORO      Operator = 14 // Although it can be expressed by Left < X && X < Right, since this is a common expression, we provide interval calculation.
-	Operator_OPERATOR_LORC      Operator = 15 // Left open right closed
-	Operator_OPERATOR_LCRO      Operator = 16 // Left closed, right open
-	Operator_OPERATOR_LCRC      Operator = 17 // Left closed right closed
-	Operator_OPERATOR_EMPTY     Operator = 18 // Empty: the tag value passed in by the user is empty
-	Operator_OPERATOR_NOT_EMPTY Operator = 19 // Not empty. The tag value passed in by the user is not empty.
-	Operator_OPERATOR_LIKE      Operator = 20 // Like: The tag value passed in by the user contains the specified substring.
-	Operator_OPERATOR_NOT_LIKE  Operator = 21 // Not Like: The tag value passed in by the user does not contain the specified substring.
+	Operator_OPERATOR_UNKNOWN     Operator = 0
+	Operator_OPERATOR_EQ          Operator = 1  // equal
+	Operator_OPERATOR_LT          Operator = 2  // Less than
+	Operator_OPERATOR_LTE         Operator = 3  // Less than or equal to
+	Operator_OPERATOR_GT          Operator = 4  // more than
+	Operator_OPERATOR_GTE         Operator = 5  // greater or equal to
+	Operator_OPERATOR_NE          Operator = 6  // not equal to
+	Operator_OPERATOR_REGULAR     Operator = 7  // Regular
+	Operator_OPERATOR_IN          Operator = 8  // Exists in array
+	Operator_OPERATOR_NOT_IN      Operator = 9  // not exist in the array
+	Operator_OPERATOR_SUPER_SET   Operator = 10 // Superset
+	Operator_OPERATOR_SUB_SET     Operator = 11 // Subset
+	Operator_OPERATOR_TRUE        Operator = 12 // true bool，It can also be a crowd package hit
+	Operator_OPERATOR_FALSE       Operator = 13 // false bool，It can also be that the crowd package does not hit, take non
+	Operator_OPERATOR_LORO        Operator = 14 // Although it can be expressed by Left < X && X < Right, since this is a common expression, we provide interval calculation.
+	Operator_OPERATOR_LORC        Operator = 15 // Left open right closed
+	Operator_OPERATOR_LCRO        Operator = 16 // Left closed, right open
+	Operator_OPERATOR_LCRC        Operator = 17 // Left closed right closed
+	Operator_OPERATOR_EMPTY       Operator = 18 // Empty: the tag value passed in by the user is empty
+	Operator_OPERATOR_NOT_EMPTY   Operator = 19 // Not empty. The tag value passed in by the user is not empty.
+	Operator_OPERATOR_NOT_REGULAR Operator = 20 // Not regular: false if the tag value matches the regular expression
 )
 
 // Enum value maps for Operator.
@@ -543,32 +542,30 @@ var (
 		17: "OPERATOR_LCRC",
 		18: "OPERATOR_EMPTY",
 		19: "OPERATOR_NOT_EMPTY",
-		20: "OPERATOR_LIKE",
-		21: "OPERATOR_NOT_LIKE",
+		20: "OPERATOR_NOT_REGULAR",
 	}
 	Operator_value = map[string]int32{
-		"OPERATOR_UNKNOWN":   0,
-		"OPERATOR_EQ":        1,
-		"OPERATOR_LT":        2,
-		"OPERATOR_LTE":       3,
-		"OPERATOR_GT":        4,
-		"OPERATOR_GTE":       5,
-		"OPERATOR_NE":        6,
-		"OPERATOR_REGULAR":   7,
-		"OPERATOR_IN":        8,
-		"OPERATOR_NOT_IN":    9,
-		"OPERATOR_SUPER_SET": 10,
-		"OPERATOR_SUB_SET":   11,
-		"OPERATOR_TRUE":      12,
-		"OPERATOR_FALSE":     13,
-		"OPERATOR_LORO":      14,
-		"OPERATOR_LORC":      15,
-		"OPERATOR_LCRO":      16,
-		"OPERATOR_LCRC":      17,
-		"OPERATOR_EMPTY":     18,
-		"OPERATOR_NOT_EMPTY": 19,
-		"OPERATOR_LIKE":      20,
-		"OPERATOR_NOT_LIKE":  21,
+		"OPERATOR_UNKNOWN":     0,
+		"OPERATOR_EQ":          1,
+		"OPERATOR_LT":          2,
+		"OPERATOR_LTE":         3,
+		"OPERATOR_GT":          4,
+		"OPERATOR_GTE":         5,
+		"OPERATOR_NE":          6,
+		"OPERATOR_REGULAR":     7,
+		"OPERATOR_IN":          8,
+		"OPERATOR_NOT_IN":      9,
+		"OPERATOR_SUPER_SET":   10,
+		"OPERATOR_SUB_SET":     11,
+		"OPERATOR_TRUE":        12,
+		"OPERATOR_FALSE":       13,
+		"OPERATOR_LORO":        14,
+		"OPERATOR_LORC":        15,
+		"OPERATOR_LCRO":        16,
+		"OPERATOR_LCRC":        17,
+		"OPERATOR_EMPTY":       18,
+		"OPERATOR_NOT_EMPTY":   19,
+		"OPERATOR_NOT_REGULAR": 20,
 	}
 )
 
@@ -4451,7 +4448,7 @@ var file_cache_server_proto_rawDesc = []byte{
 	0x0a, 0x12, 0x54, 0x41, 0x47, 0x5f, 0x4f, 0x52, 0x49, 0x47, 0x49, 0x4e, 0x5f, 0x55, 0x4e, 0x4b,
 	0x4e, 0x4f, 0x57, 0x4e, 0x10, 0x00, 0x12, 0x12, 0x0a, 0x0e, 0x54, 0x41, 0x47, 0x5f, 0x4f, 0x52,
 	0x49, 0x47, 0x49, 0x4e, 0x5f, 0x54, 0x41, 0x47, 0x10, 0x01, 0x12, 0x12, 0x0a, 0x0e, 0x54, 0x41,
-	0x47, 0x5f, 0x4f, 0x52, 0x49, 0x47, 0x49, 0x4e, 0x5f, 0x44, 0x4d, 0x50, 0x10, 0x02, 0x2a, 0xbb,
+	0x47, 0x5f, 0x4f, 0x52, 0x49, 0x47, 0x49, 0x4e, 0x5f, 0x44, 0x4d, 0x50, 0x10, 0x02, 0x2a, 0xab,
 	0x03, 0x0a, 0x08, 0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x14, 0x0a, 0x10, 0x4f,
 	0x50, 0x45, 0x52, 0x41, 0x54, 0x4f, 0x52, 0x5f, 0x55, 0x4e, 0x4b, 0x4e, 0x4f, 0x57, 0x4e, 0x10,
 	0x00, 0x12, 0x0f, 0x0a, 0x0b, 0x4f, 0x50, 0x45, 0x52, 0x41, 0x54, 0x4f, 0x52, 0x5f, 0x45, 0x51,
@@ -4477,9 +4474,8 @@ var file_cache_server_proto_rawDesc = []byte{
 	0x4c, 0x43, 0x52, 0x43, 0x10, 0x11, 0x12, 0x12, 0x0a, 0x0e, 0x4f, 0x50, 0x45, 0x52, 0x41, 0x54,
 	0x4f, 0x52, 0x5f, 0x45, 0x4d, 0x50, 0x54, 0x59, 0x10, 0x12, 0x12, 0x16, 0x0a, 0x12, 0x4f, 0x50,
 	0x45, 0x52, 0x41, 0x54, 0x4f, 0x52, 0x5f, 0x4e, 0x4f, 0x54, 0x5f, 0x45, 0x4d, 0x50, 0x54, 0x59,
-	0x10, 0x13, 0x12, 0x11, 0x0a, 0x0d, 0x4f, 0x50, 0x45, 0x52, 0x41, 0x54, 0x4f, 0x52, 0x5f, 0x4c,
-	0x49, 0x4b, 0x45, 0x10, 0x14, 0x12, 0x15, 0x0a, 0x11, 0x4f, 0x50, 0x45, 0x52, 0x41, 0x54, 0x4f,
-	0x52, 0x5f, 0x4e, 0x4f, 0x54, 0x5f, 0x4c, 0x49, 0x4b, 0x45, 0x10, 0x15, 0x2a, 0xad, 0x01, 0x0a,
+	0x10, 0x13, 0x12, 0x18, 0x0a, 0x14, 0x4f, 0x50, 0x45, 0x52, 0x41, 0x54, 0x4f, 0x52, 0x5f, 0x4e,
+	0x4f, 0x54, 0x5f, 0x52, 0x45, 0x47, 0x55, 0x4c, 0x41, 0x52, 0x10, 0x14, 0x2a, 0xad, 0x01, 0x0a,
 	0x07, 0x54, 0x61, 0x67, 0x54, 0x79, 0x70, 0x65, 0x12, 0x14, 0x0a, 0x10, 0x54, 0x41, 0x47, 0x5f,
 	0x54, 0x59, 0x50, 0x45, 0x5f, 0x55, 0x4e, 0x4b, 0x4e, 0x4f, 0x57, 0x4e, 0x10, 0x00, 0x12, 0x13,
 	0x0a, 0x0f, 0x54, 0x41, 0x47, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x53, 0x54, 0x52, 0x49, 0x4e,
